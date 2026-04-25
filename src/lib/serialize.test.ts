@@ -39,7 +39,7 @@ describe('newsletterToMarkdown', () => {
     expect(md).toContain('- Date : 10 mai')
     expect(md).toContain('- Bonus : poussière x3')
     expect(md).toContain('![](https://img.example/tepig.jpg)')
-    expect(md).toContain('[Source : Pokémon GO Hub](https://src.example/tepig)')
+    expect(md).toContain('Source : [Pokémon GO Hub](https://src.example/tepig)')
   })
 
   it('skips empty bullets', () => {
@@ -54,7 +54,7 @@ describe('newsletterToMarkdown', () => {
     }
     const md = newsletterToMarkdown(trimmed)
     expect(md).toContain('- kept')
-    expect(md).not.toMatch(/-\s*$/)
+    expect(md).not.toMatch(/^-\s*$/m)
   })
 })
 

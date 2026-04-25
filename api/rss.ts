@@ -102,6 +102,58 @@ function hashId(input: string): string {
   return Math.abs(h).toString(36)
 }
 
+function pickMetaContent(html: string, patterns: RegExp[]): string | null {
+  for (const pattern of patterns) {
+    const match = html.match(pattern)
+    if (match?.[1]) return match[1]
+  }
+  return null
+}
+
+async function fetchOgImage(articleUrl: string): Promise<string | null> {
+  try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000)
+    const response = await fetch(articleUrl, {
+      headers: {
+        'User-Agent': 'PokeWatch/0.1 (+https://github.com/Vitopya/Pokewatch)',
+        Accept: 'text/html,application/xhtml+xml',
+      },
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timeoutId))
+    if (!response.ok) return null
+    const contentType = response.headers.get('content-type') ?? ''
+    if (!contentType.includes('html')) return null
+    const html = (await response.text()).slice(0, 200_000)
+    return pickMetaContent(html, [
+      /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i,
+      /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
+      /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
+      /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
+      /<link[^>]+rel=["']image_src["'][^>]+href=["']([^"']+)["']/i,
+    ])
+  } catch {
+    return null
+  }
+}
+
+async function backfillImages(articles: ParsedArticle[]): Promise<void> {
+  const targets = articles.filter((a) => !a.imageUrl && a.url)
+  if (targets.length === 0) return
+  const concurrency = 5
+  let cursor = 0
+  async function worker() {
+    while (cursor < targets.length) {
+      const index = cursor++
+      const article = targets[index]
+      const found = await fetchOgImage(article.url)
+      if (found) article.imageUrl = found
+    }
+  }
+  const workers = Array.from({ length: Math.min(concurrency, targets.length) }, worker)
+  await Promise.all(workers)
+}
+
 export default async function handler(
   req: IncomingMessage & { query?: Record<string, string> },
   res: ServerResponse,
@@ -199,6 +251,8 @@ export default async function handler(
         isSelected: true,
       }
     })
+
+    await backfillImages(articles)
 
     res.statusCode = 200
     res.setHeader('content-type', 'application/json')

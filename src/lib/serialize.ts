@@ -10,22 +10,25 @@ export function newsletterToMarkdown(newsletter: Newsletter): string {
     lines.push('')
     for (const item of section.items) {
       lines.push(`### ${item.title}`)
+      lines.push('')
+      if (item.imageUrl) {
+        lines.push(`![](${item.imageUrl})`)
+        lines.push('')
+      }
       if (item.description) {
         lines.push(item.description)
-      }
-      if (item.bullets.length > 0) {
         lines.push('')
-        for (const bullet of item.bullets) {
-          if (bullet.trim().length === 0) continue
+      }
+      const bullets = item.bullets.filter((b) => b.trim().length > 0)
+      if (bullets.length > 0) {
+        for (const bullet of bullets) {
           lines.push(`- ${bullet}`)
         }
-      }
-      if (item.imageUrl) {
         lines.push('')
-        lines.push(`![](${item.imageUrl})`)
       }
+      lines.push(`Source : [${item.sourceName}](${item.sourceUrl})`)
       lines.push('')
-      lines.push(`[Source : ${item.sourceName}](${item.sourceUrl})`)
+      lines.push('---')
       lines.push('')
     }
   }
@@ -42,53 +45,46 @@ function escapeHtml(input: string): string {
     .replace(/'/g, '&#39;')
 }
 
+/**
+ * Produit du HTML simple, sémantique, sans inline-styles agressifs.
+ * Optimisé pour collage dans Microsoft Teams, Slack, Outlook, Gmail, Notion :
+ * ces clients normalisent fortement le HTML, donc on s'appuie uniquement sur
+ * les balises sémantiques (h1/h2/h3, p, ul/li, img, a) qu'ils savent rendre.
+ */
 export function newsletterToHtml(newsletter: Newsletter): string {
   const blocks: string[] = []
-  const baseFont =
-    "font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;"
 
-  blocks.push(
-    `<h1 style="${baseFont} font-size: 28px; font-weight: 800; color: #18181b; margin: 0 0 24px;">${escapeHtml(newsletter.title)}</h1>`,
-  )
+  blocks.push(`<h1>${escapeHtml(newsletter.title)}</h1>`)
 
   for (const section of newsletter.sections) {
-    blocks.push(
-      `<h2 style="${baseFont} font-size: 20px; font-weight: 700; color: #0f172a; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #e4e4e7;">${escapeHtml(section.title)}</h2>`,
-    )
+    blocks.push(`<h2>${escapeHtml(section.title)}</h2>`)
 
     for (const item of section.items) {
-      blocks.push('<div style="margin: 0 0 24px;">')
+      blocks.push(`<h3>${escapeHtml(item.title)}</h3>`)
       if (item.imageUrl) {
         blocks.push(
-          `<img src="${escapeHtml(item.imageUrl)}" alt="" style="max-width: 100%; height: auto; border-radius: 12px; margin: 0 0 12px; display: block;" />`,
+          `<p><img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.title)}" width="480" /></p>`,
         )
       }
-      blocks.push(
-        `<h3 style="${baseFont} font-size: 17px; font-weight: 700; color: #18181b; margin: 0 0 6px;">${escapeHtml(item.title)}</h3>`,
-      )
       if (item.description) {
-        blocks.push(
-          `<p style="${baseFont} font-size: 14px; line-height: 1.55; color: #3f3f46; margin: 0 0 10px;">${escapeHtml(item.description)}</p>`,
-        )
+        blocks.push(`<p>${escapeHtml(item.description)}</p>`)
       }
       const bullets = item.bullets.filter((b) => b.trim().length > 0)
       if (bullets.length > 0) {
-        blocks.push('<ul style="margin: 0 0 10px; padding-left: 20px;">')
+        blocks.push('<ul>')
         for (const bullet of bullets) {
-          blocks.push(
-            `<li style="${baseFont} font-size: 14px; line-height: 1.5; color: #3f3f46; margin: 0 0 4px;">${escapeHtml(bullet)}</li>`,
-          )
+          blocks.push(`<li>${escapeHtml(bullet)}</li>`)
         }
         blocks.push('</ul>')
       }
       blocks.push(
-        `<p style="${baseFont} font-size: 12px; color: #71717a; margin: 8px 0 0;"><a href="${escapeHtml(item.sourceUrl)}" style="color: #0ea5e9; text-decoration: underline;">Source : ${escapeHtml(item.sourceName)}</a></p>`,
+        `<p><em>Source : <a href="${escapeHtml(item.sourceUrl)}">${escapeHtml(item.sourceName)}</a></em></p>`,
       )
-      blocks.push('</div>')
+      blocks.push('<hr />')
     }
   }
 
-  return `<div style="${baseFont} max-width: 720px; color: #18181b;">${blocks.join('\n')}</div>`
+  return blocks.join('\n')
 }
 
 export async function copyMarkdownToClipboard(newsletter: Newsletter): Promise<void> {
