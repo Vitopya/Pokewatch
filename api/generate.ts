@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'http'
+﻿import type { IncomingMessage, ServerResponse } from 'http'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 interface IncomingArticle {
@@ -209,7 +209,7 @@ export default async function handler(
 
   try {
     const genAI = getGeminiClient()
-    const modelName = process.env.GEMINI_MODEL ?? 'gemini-2.0-flash-exp'
+    const modelName = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash'
     const model = genAI.getGenerativeModel({
       model: modelName,
       systemInstruction: SYSTEM_PROMPT,

@@ -1,4 +1,4 @@
-# PokeWatch — Project Instructions
+﻿# PokeWatch — Project Instructions
 
 PokeWatch is a single-screen webapp that turns Pokémon RSS feeds into structured, AI-generated newsletters. The user fetches articles from configured RSS feeds, selects which ones to include, generates a newsletter via Google Gemini (auto-grouped by event tag), edits inline, and copies in markdown or HTML.
 
@@ -53,7 +53,7 @@ The current `App.tsx` wires console.log stubs to all callbacks. Real implementat
 
 - **Settings drawer** — Feed CRUD, default copy format, reset localStorage. Triggered by `onOpenSettings`. The Gemini API key lives server-side (Vercel env `GEMINI_API_KEY`), not in the drawer.
 - **RSS fetching** — Browser CORS blocks most feeds; `api/rss.ts` proxies the fetch + parsing server-side and returns `Article[]`.
-- **Gemini integration** — `api/generate.ts` streams `gemini-2.0-flash-exp` (free tier) over SSE. System prompt asks for synthesis + auto-tag + grouping. Output parsed into `Newsletter` shape on the client.
+- **Gemini integration** — `api/generate.ts` streams `gemini-2.5-flash` (free tier) over SSE. System prompt asks for synthesis + auto-tag + grouping. Output parsed into `Newsletter` shape on the client.
 - **Clipboard serialization** — `onCopyMarkdown` and `onCopyHtml` walk `newsletter.sections` and write to clipboard via `navigator.clipboard`.
 - **Persistence** — localStorage keys: `pokewatch:feeds`, `pokewatch:newsletter-draft`, `pokewatch:filters`, `pokewatch:onboarding`, `pokewatch:theme`, `pokewatch:ui-panel`.
 

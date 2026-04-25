@@ -1,4 +1,4 @@
-# PokeWatch
+﻿# PokeWatch
 
 Webapp single-screen : flux RSS Pokémon → newsletter générée par Google Gemini. Édition inline, copie markdown ou HTML rich.
 
@@ -21,7 +21,7 @@ Get your free Gemini API key at https://aistudio.google.com/apikey.
 
 ## Stack
 
-React 19 · Vite · Tailwind v4 · Tiptap · @dnd-kit · Vercel functions Node 20 · `gemini-2.0-flash-exp` (free tier)
+React 19 · Vite · Tailwind v4 · Tiptap · @dnd-kit · Vercel functions Node 20 · `gemini-2.5-flash` (free tier)
 
 ## Deploy Vercel
 
@@ -31,7 +31,7 @@ vercel env add GEMINI_API_KEY
 vercel --prod
 ```
 
-Variables d'env : `GEMINI_API_KEY` (obligatoire), `GEMINI_MODEL` (optionnel, défaut `gemini-2.0-flash-exp`).
+Variables d'env : `GEMINI_API_KEY` (obligatoire), `GEMINI_MODEL` (optionnel, défaut `gemini-2.5-flash`).
 
 ## Architecture
 
