@@ -46,7 +46,7 @@ export function Splashscreen({ onDone, duration = 1700 }: SplashscreenProps) {
       >
         <div className="flex items-center gap-3 mb-5">
           <img
-            src="/logo.png"
+            src="/docs/favicon_gazette.webp"
             alt=""
             aria-hidden="true"
             className="h-12 w-12 sm:h-14 sm:w-14 object-contain"

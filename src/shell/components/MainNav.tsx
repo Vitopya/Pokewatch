@@ -40,7 +40,7 @@ export function MainNav({
         aria-label="Gazette — accueil"
       >
         <img
-          src="/logo.png"
+          src="/docs/favicon_gazette.webp"
           alt=""
           aria-hidden="true"
           className="h-7 w-7 md:h-8 md:w-8 object-contain shrink-0"

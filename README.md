@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/logo.png" alt="Gazette logo" width="160" />
+  <img src="public/docs/favicon_gazette.webp" alt="Gazette logo" width="140" />
 </p>
 
 <h1 align="center">Gazette</h1>
@@ -10,6 +10,10 @@
 </p>
 
 ---
+
+<p align="center">
+  <img src="public/docs/gazette_interface_v1.0.webp" alt="Aperçu de l'interface Gazette v1.0 — panneau gauche des sources et panneau droit d'édition de la newsletter" width="100%" />
+</p>
 
 ## Concept
 
