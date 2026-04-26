@@ -131,8 +131,8 @@ export function NewsletterSectionCard({
           <button
             type="button"
             {...dragHandleProps}
-            className="cursor-grab active:cursor-grabbing text-ink-4 hover:text-ink dark:text-night-text-3 dark:hover:text-night-text transition-colors opacity-0 group-hover/section:opacity-100 touch-none"
-            aria-label="Réordonner section (drag)"
+            className="cursor-grab active:cursor-grabbing inline-flex h-6 w-6 items-center justify-center text-ink-4 hover:text-ink dark:text-night-text-3 dark:hover:text-night-text transition-colors opacity-60 md:opacity-0 md:group-hover/section:opacity-100 md:focus-visible:opacity-100 touch-none focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
+            aria-label="Réordonner cette rubrique"
             title="Glisser pour réordonner"
           >
             <GripVertical className="h-3.5 w-3.5" aria-hidden="true" strokeWidth={2.25} />
@@ -145,9 +145,9 @@ export function NewsletterSectionCard({
           <button
             type="button"
             onClick={onDeleteSection}
-            className="cursor-pointer inline-flex h-5 w-5 items-center justify-center text-ink-4 hover:bg-vermillion hover:text-paper dark:text-night-text-3 dark:hover:bg-vermillion dark:hover:text-paper transition-colors opacity-0 group-hover/section:opacity-100 focus:opacity-100"
-            aria-label="Supprimer la section"
-            title="Supprimer la section"
+            className="cursor-pointer inline-flex h-6 w-6 items-center justify-center text-ink-4 hover:bg-vermillion hover:text-paper dark:text-night-text-3 dark:hover:bg-vermillion dark:hover:text-paper transition-colors opacity-60 md:opacity-0 md:group-hover/section:opacity-100 md:focus-visible:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
+            aria-label="Supprimer la rubrique"
+            title="Supprimer la rubrique"
           >
             <Trash2 className="h-3 w-3" aria-hidden="true" strokeWidth={2.25} />
           </button>

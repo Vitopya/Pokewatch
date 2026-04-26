@@ -139,7 +139,7 @@ export function FilterControls({
                     'inline-flex items-stretch text-[11px] font-mono uppercase tracking-[0.1em] border transition-colors',
                     active
                       ? 'bg-ink text-bone dark:bg-night-text dark:text-night border-ink dark:border-night-text'
-                      : 'bg-paper dark:bg-night text-ink-3 dark:text-night-text-3 border-ink/40 dark:border-night-text/40',
+                      : 'bg-paper dark:bg-night text-ink-3 dark:text-night-text-3 border-ink/60 dark:border-night-text/60',
                     pendingRemove ? 'ring-2 ring-vermillion' : '',
                   ].join(' ')}
                 >

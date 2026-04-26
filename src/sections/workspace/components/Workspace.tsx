@@ -42,6 +42,7 @@ export function Workspace({
 
   return (
     <div className="flex-1 min-h-0 flex flex-col">
+      <h1 className="sr-only">Gazette — atelier de newsletter</h1>
       <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[minmax(320px,36%)_1fr]">
         <div
           data-tour="rss-panel"

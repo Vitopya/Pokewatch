@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { FocusTrap } from 'focus-trap-react'
 import { ArrowRight, Compass, KeyRound, Plus, RotateCcw, Sparkles, Trash2, Wifi, WifiOff, X } from 'lucide-react'
 import type { AiProvider, FeedAccentColor, RssFeed } from '../sections/workspace/types'
 
@@ -26,15 +27,15 @@ const PROVIDER_META: Record<AiProvider, { envVar: string; link: string; hint: st
   },
 }
 
-const ACCENT_OPTIONS: Array<{ value: FeedAccentColor; className: string }> = [
-  { value: 'sky', className: 'bg-sky-600' },
-  { value: 'rose', className: 'bg-rose-600' },
-  { value: 'amber', className: 'bg-amber-500' },
-  { value: 'emerald', className: 'bg-emerald-600' },
-  { value: 'violet', className: 'bg-violet-600' },
-  { value: 'cyan', className: 'bg-cyan-600' },
-  { value: 'orange', className: 'bg-orange-500' },
-  { value: 'pink', className: 'bg-pink-500' },
+const ACCENT_OPTIONS: Array<{ value: FeedAccentColor; className: string; label: string }> = [
+  { value: 'sky', className: 'bg-sky-600', label: 'Bleu ciel' },
+  { value: 'rose', className: 'bg-rose-600', label: 'Rose' },
+  { value: 'amber', className: 'bg-amber-500', label: 'Ambre' },
+  { value: 'emerald', className: 'bg-emerald-600', label: 'Émeraude' },
+  { value: 'violet', className: 'bg-violet-600', label: 'Violet' },
+  { value: 'cyan', className: 'bg-cyan-600', label: 'Cyan' },
+  { value: 'orange', className: 'bg-orange-500', label: 'Orange' },
+  { value: 'pink', className: 'bg-pink-500', label: 'Magenta' },
 ]
 
 const ACCENT_DOT_CLASSES: Record<string, string> = Object.fromEntries(
@@ -93,6 +94,7 @@ export function SettingsDrawer({
   const [newUrl, setNewUrl] = useState('')
   const [newAccent, setNewAccent] = useState<FeedAccentColor>('sky')
   const [showResetConfirm, setShowResetConfirm] = useState(false)
+  const [urlError, setUrlError] = useState<string | null>(null)
 
   // Close on Escape
   useEffect(() => {
@@ -121,6 +123,7 @@ export function SettingsDrawer({
       setNewUrl('')
       setNewAccent('sky')
       setShowResetConfirm(false)
+      setUrlError(null)
     }
   }, [open])
 
@@ -128,11 +131,12 @@ export function SettingsDrawer({
     event.preventDefault()
     const title = newTitle.trim()
     const url = newUrl.trim()
+    setUrlError(null)
     if (!title || !url) return
     try {
       new URL(url)
     } catch {
-      window.alert('URL invalide')
+      setUrlError('URL invalide. Vérifie le protocole (http:// ou https://) et la syntaxe.')
       return
     }
     onAddFeed({ title, url, accentColor: newAccent })
@@ -143,10 +147,19 @@ export function SettingsDrawer({
   if (!open) return null
 
   return createPortal(
+    <FocusTrap
+      focusTrapOptions={{
+        escapeDeactivates: true,
+        clickOutsideDeactivates: true,
+        onDeactivate: () => onOpenChange(false),
+        returnFocusOnDeactivate: true,
+        initialFocus: false,
+      }}
+    >
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Réglages"
+      aria-labelledby="settings-drawer-title"
       style={{ position: 'fixed', inset: 0, height: '100dvh', zIndex: 50, display: 'flex', justifyContent: 'flex-end' }}
     >
       {/* Overlay */}
@@ -186,7 +199,7 @@ export function SettingsDrawer({
               <X className="h-3.5 w-3.5" aria-hidden="true" strokeWidth={2.5} />
             </button>
           </div>
-          <h2 className="mt-2 font-display font-black tracking-[-0.03em] leading-none text-ink dark:text-night-text text-3xl md:text-4xl">
+          <h2 id="settings-drawer-title" className="mt-2 font-display font-black tracking-[-0.03em] leading-none text-ink dark:text-night-text text-3xl md:text-4xl">
             Réglages
           </h2>
           <p className="mt-2 font-display italic text-sm text-ink-3 dark:text-night-text-3">
@@ -286,13 +299,13 @@ export function SettingsDrawer({
               </h4>
               <p className="mt-1.5 text-xs text-ink-2 dark:text-night-text-2 leading-snug">
                 Pour ta sécurité, la clé n'est <strong>jamais saisie dans le navigateur</strong>. Elle est lue côté serveur via la variable d'environnement{' '}
-                <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/40 dark:border-night-text/40">
+                <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/60 dark:border-night-text/60">
                   {PROVIDER_META[provider].envVar}
                 </code>
                 . Configure-la dans ton fichier{' '}
-                <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/40 dark:border-night-text/40">.env</code>
+                <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/60 dark:border-night-text/60">.env</code>
                 {' '}local ou via{' '}
-                <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/40 dark:border-night-text/40">vercel env add</code>
+                <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/60 dark:border-night-text/60">vercel env add</code>
                 {' '}en production, puis recharge la page.
               </p>
               <p className="mt-1.5 text-xs text-ink-3 dark:text-night-text-3 italic leading-snug">
@@ -372,26 +385,47 @@ export function SettingsDrawer({
             <form
               onSubmit={handleAddFeed}
               className="mt-3 border-2 border-dashed border-ink dark:border-night-text p-3 space-y-2 bg-bone dark:bg-night"
+              aria-labelledby="add-feed-label"
             >
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-3 dark:text-night-text-3 mb-1">
+              <p id="add-feed-label" className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-3 dark:text-night-text-3 mb-1">
                 Ajouter une source
               </p>
-              <input
-                type="text"
-                value={newTitle}
-                onChange={(event) => setNewTitle(event.target.value)}
-                placeholder="Nom de la source"
-                className={inputBase}
-                required
-              />
-              <input
-                type="url"
-                value={newUrl}
-                onChange={(event) => setNewUrl(event.target.value)}
-                placeholder="https://example.com/feed.xml"
-                className={`${inputBase} font-mono text-xs`}
-                required
-              />
+              <label className="block">
+                <span className="sr-only">Nom de la source</span>
+                <input
+                  type="text"
+                  value={newTitle}
+                  onChange={(event) => setNewTitle(event.target.value)}
+                  placeholder="Nom de la source"
+                  className={inputBase}
+                  required
+                />
+              </label>
+              <label className="block">
+                <span className="sr-only">URL du flux RSS</span>
+                <input
+                  type="url"
+                  value={newUrl}
+                  onChange={(event) => {
+                    setNewUrl(event.target.value)
+                    if (urlError) setUrlError(null)
+                  }}
+                  placeholder="https://example.com/feed.xml"
+                  className={`${inputBase} font-mono text-xs ${urlError ? 'border-vermillion focus:ring-vermillion' : ''}`}
+                  required
+                  aria-invalid={urlError ? true : undefined}
+                  aria-describedby={urlError ? 'add-feed-url-error' : undefined}
+                />
+              </label>
+              {urlError && (
+                <p
+                  id="add-feed-url-error"
+                  role="alert"
+                  className="text-xs text-vermillion font-mono leading-snug"
+                >
+                  {urlError}
+                </p>
+              )}
               <div className="flex items-center gap-2 pt-1 flex-wrap">
                 <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-3 dark:text-night-text-3">
                   Couleur
@@ -403,14 +437,15 @@ export function SettingsDrawer({
                       type="button"
                       onClick={() => setNewAccent(opt.value)}
                       className={[
-                        'cursor-pointer h-5 w-5 transition-transform border-2',
+                        'cursor-pointer h-6 w-6 transition-transform border-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion',
                         opt.className,
                         newAccent === opt.value
                           ? 'border-vermillion scale-110'
-                          : 'border-ink dark:border-night-text opacity-70 hover:opacity-100',
+                          : 'border-ink dark:border-night-text opacity-80 hover:opacity-100',
                       ].join(' ')}
-                      aria-label={opt.value}
+                      aria-label={`Couleur ${opt.label}`}
                       aria-pressed={newAccent === opt.value}
+                      title={opt.label}
                     />
                   ))}
                 </div>
@@ -498,7 +533,8 @@ export function SettingsDrawer({
           <span className="shrink-0">v1.0</span>
         </footer>
       </div>
-    </div>,
+    </div>
+    </FocusTrap>,
     document.body,
   )
 }

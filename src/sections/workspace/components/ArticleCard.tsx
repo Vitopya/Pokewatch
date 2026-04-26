@@ -42,8 +42,9 @@ export function ArticleCard({ article, feed, onToggleSelection }: ArticleCardPro
       <label
         className={[
           'group relative flex gap-3 cursor-pointer transition-all border-2',
+          'has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-vermillion has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-bone dark:has-[:focus-visible]:ring-offset-night',
           isSelected
-            ? 'border-vermillion bg-paper dark:bg-night-paper shadow-[3px_3px_0_0_rgba(215,50,28,1)]'
+            ? 'border-vermillion bg-paper dark:bg-night-paper shadow-[3px_3px_0_0_rgba(194,32,15,1)]'
             : 'border-ink dark:border-night-text bg-paper dark:bg-night-paper hover:shadow-[3px_3px_0_0_rgba(14,14,12,1)] dark:hover:shadow-[3px_3px_0_0_rgba(232,226,212,0.5)] hover:-translate-x-[1px] hover:-translate-y-[1px]',
         ].join(' ')}
       >
@@ -51,6 +52,7 @@ export function ArticleCard({ article, feed, onToggleSelection }: ArticleCardPro
           type="checkbox"
           checked={isSelected}
           onChange={(event) => onToggleSelection?.(event.target.checked)}
+          aria-label={`Sélectionner l'article : ${article.title}`}
           className="sr-only peer"
         />
 
@@ -108,7 +110,7 @@ export function ArticleCard({ article, feed, onToggleSelection }: ArticleCardPro
           target="_blank"
           rel="noreferrer"
           onClick={(event) => event.stopPropagation()}
-          className="absolute right-1.5 bottom-1.5 inline-flex h-5 w-5 items-center justify-center text-ink-4 dark:text-night-text-3 hover:text-vermillion transition-colors opacity-0 group-hover:opacity-100"
+          className="absolute right-1.5 bottom-1.5 inline-flex h-6 w-6 items-center justify-center text-ink-4 dark:text-night-text-3 hover:text-vermillion transition-colors opacity-60 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
           aria-label={`Ouvrir l'article ${article.title} dans un nouvel onglet`}
         >
           <ExternalLink className="h-3 w-3" aria-hidden="true" strokeWidth={2.25} />

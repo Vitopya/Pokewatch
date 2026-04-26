@@ -80,7 +80,7 @@ export function MainNav({
           onClick={onOpenSettings}
           data-tour="settings-button"
           className="cursor-pointer inline-flex items-center gap-1.5 h-7 md:h-8 px-2.5 border-2 border-ink dark:border-night-text text-ink dark:text-night-text font-mono text-[10px] uppercase tracking-[0.18em] hover:bg-ink hover:text-bone dark:hover:bg-night-text dark:hover:text-night transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
-          aria-label="Ouvrir les réglages"
+          aria-label="Réglages"
           title="Réglages"
         >
           <Settings className="h-3 w-3" aria-hidden="true" strokeWidth={2.25} />

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useState } from 'react'
+import { FocusTrap } from 'focus-trap-react'
 import { ArrowRight, X } from 'lucide-react'
 
 export interface TourStep {
@@ -175,6 +176,14 @@ export function AppTour({ steps = DEFAULT_TOUR_STEPS, onClose, onComplete }: App
     'absolute bg-ink/75 dark:bg-black/80 backdrop-blur-sm transition-all duration-150'
 
   return (
+    <FocusTrap
+      focusTrapOptions={{
+        escapeDeactivates: true,
+        clickOutsideDeactivates: false,
+        onDeactivate: onClose,
+        returnFocusOnDeactivate: true,
+      }}
+    >
     <div className="fixed inset-0 z-[55] pointer-events-auto" role="dialog" aria-modal="true" aria-label="Visite guidée">
       {spotlight ? (
         <>
@@ -274,5 +283,6 @@ export function AppTour({ steps = DEFAULT_TOUR_STEPS, onClose, onComplete }: App
         </footer>
       </div>
     </div>
+    </FocusTrap>
   )
 }

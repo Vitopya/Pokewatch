@@ -10,6 +10,15 @@ export function Splashscreen({ onDone, duration = 1700 }: SplashscreenProps) {
   const [phase, setPhase] = useState<'in' | 'visible' | 'out'>('in')
 
   useEffect(() => {
+    // Respect prefers-reduced-motion: skip the splash animation entirely.
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduceMotion) {
+      onDone()
+      return
+    }
     const t1 = window.setTimeout(() => setPhase('visible'), 30)
     const t2 = window.setTimeout(() => setPhase('out'), Math.max(600, duration - 350))
     const t3 = window.setTimeout(() => onDone(), duration)
@@ -60,6 +69,14 @@ export function Splashscreen({ onDone, duration = 1700 }: SplashscreenProps) {
         >
           <div className="h-full w-1/3 bg-vermillion animate-[splashbar_1.2s_ease-in-out_infinite]" />
         </div>
+
+        <button
+          type="button"
+          onClick={onDone}
+          className="cursor-pointer mt-6 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-3 dark:text-night-text-3 hover:text-vermillion underline underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion px-2 py-1"
+        >
+          Passer
+        </button>
       </div>
 
       <style>{`@keyframes splashbar { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }`}</style>

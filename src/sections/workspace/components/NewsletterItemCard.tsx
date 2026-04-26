@@ -75,12 +75,14 @@ export function NewsletterItemCard({
           <div className="absolute top-1.5 left-1.5 inline-flex items-center px-1.5 py-0.5 bg-paper dark:bg-night-paper border border-ink dark:border-night-text font-mono text-[9px] uppercase tracking-[0.16em] text-ink dark:text-night-text">
             {isLead ? 'À la une' : `№${String(index + 1).padStart(2, '0')}`}
           </div>
-          <div className="absolute bottom-1.5 right-1.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute bottom-1.5 right-1.5 flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100 transition-opacity">
             <button
               type="button"
               onClick={() => setShowImageMenu((prev) => !prev)}
-              className="cursor-pointer inline-flex h-6 w-6 items-center justify-center bg-ink text-paper border border-ink hover:bg-vermillion hover:border-vermillion focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
+              className="cursor-pointer inline-flex h-7 w-7 items-center justify-center bg-ink text-paper border border-ink hover:bg-vermillion hover:border-vermillion focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
               aria-label="Options de l'image"
+              aria-haspopup="menu"
+              aria-expanded={showImageMenu}
             >
               <ImagePlus className="h-3 w-3" aria-hidden="true" strokeWidth={2.25} />
             </button>
@@ -116,7 +118,7 @@ export function NewsletterItemCard({
               <button
                 type="button"
                 {...dragHandleProps}
-                className="cursor-grab active:cursor-grabbing inline-flex h-4 w-4 items-center justify-center text-ink-4 hover:text-ink dark:text-night-text-3 dark:hover:text-night-text transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 touch-none"
+                className="cursor-grab active:cursor-grabbing inline-flex h-6 w-6 items-center justify-center text-ink-4 hover:text-ink dark:text-night-text-3 dark:hover:text-night-text transition-colors opacity-60 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100 touch-none focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
                 aria-label="Réordonner cette carte (drag)"
                 title="Glisser pour réordonner"
               >
@@ -130,7 +132,7 @@ export function NewsletterItemCard({
               <button
                 type="button"
                 onClick={onDelete}
-                className="cursor-pointer inline-flex h-5 w-5 items-center justify-center text-ink-4 hover:bg-vermillion hover:text-paper dark:text-night-text-3 dark:hover:bg-vermillion dark:hover:text-paper transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                className="cursor-pointer inline-flex h-6 w-6 items-center justify-center text-ink-4 hover:bg-vermillion hover:text-paper dark:text-night-text-3 dark:hover:bg-vermillion dark:hover:text-paper transition-colors opacity-60 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
                 aria-label="Supprimer cette carte"
                 title="Supprimer la carte"
               >
@@ -186,8 +188,8 @@ export function NewsletterItemCard({
                 <button
                   type="button"
                   onClick={() => onRemoveBullet?.(bulletIndex)}
-                  className="cursor-pointer inline-flex h-4 w-4 items-center justify-center text-ink-4 hover:bg-vermillion hover:text-paper dark:text-night-text-3 transition-colors opacity-0 group-hover/bullet:opacity-100"
-                  aria-label={`Supprimer bullet ${bulletIndex + 1}`}
+                  className="cursor-pointer inline-flex h-6 w-6 items-center justify-center text-ink-4 hover:bg-vermillion hover:text-paper dark:text-night-text-3 transition-colors opacity-60 md:opacity-0 md:group-hover/bullet:opacity-100 md:focus-visible:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
+                  aria-label={`Supprimer le détail ${bulletIndex + 1}`}
                 >
                   <X className="h-3 w-3" aria-hidden="true" strokeWidth={2.5} />
                 </button>

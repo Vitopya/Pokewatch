@@ -3,15 +3,15 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { ArrowRight, KeyRound, Plus, Rss, Sparkles, Trash2, X } from 'lucide-react'
 import type { AiProvider, FeedAccentColor, RssFeed } from '../types'
 
-const ACCENT_OPTIONS: Array<{ value: FeedAccentColor; className: string }> = [
-  { value: 'sky', className: 'bg-sky-600' },
-  { value: 'rose', className: 'bg-rose-600' },
-  { value: 'amber', className: 'bg-amber-500' },
-  { value: 'emerald', className: 'bg-emerald-600' },
-  { value: 'violet', className: 'bg-violet-600' },
-  { value: 'cyan', className: 'bg-cyan-600' },
-  { value: 'orange', className: 'bg-orange-500' },
-  { value: 'pink', className: 'bg-pink-500' },
+const ACCENT_OPTIONS: Array<{ value: FeedAccentColor; className: string; label: string }> = [
+  { value: 'sky', className: 'bg-sky-600', label: 'Bleu ciel' },
+  { value: 'rose', className: 'bg-rose-600', label: 'Rose' },
+  { value: 'amber', className: 'bg-amber-500', label: 'Ambre' },
+  { value: 'emerald', className: 'bg-emerald-600', label: 'Émeraude' },
+  { value: 'violet', className: 'bg-violet-600', label: 'Violet' },
+  { value: 'cyan', className: 'bg-cyan-600', label: 'Cyan' },
+  { value: 'orange', className: 'bg-orange-500', label: 'Orange' },
+  { value: 'pink', className: 'bg-pink-500', label: 'Magenta' },
 ]
 
 const PROVIDERS: Array<{
@@ -90,6 +90,7 @@ export function SetupWizardModal({
   const [newTitle, setNewTitle] = useState('')
   const [newUrl, setNewUrl] = useState('')
   const [newAccent, setNewAccent] = useState<FeedAccentColor>('sky')
+  const [urlError, setUrlError] = useState<string | null>(null)
 
   const providerMeta = PROVIDERS.find((p) => p.id === provider)!
 
@@ -102,11 +103,12 @@ export function SetupWizardModal({
     e.preventDefault()
     const title = newTitle.trim()
     const url = newUrl.trim()
+    setUrlError(null)
     if (!title || !url) return
     try {
       new URL(url)
     } catch {
-      window.alert('URL invalide')
+      setUrlError('URL invalide. Vérifie le protocole (http:// ou https://) et la syntaxe.')
       return
     }
     setDrafts((prev) => [...prev, { id: newDraftId(), title, url, accentColor: newAccent }])
@@ -219,8 +221,8 @@ export function SetupWizardModal({
                   </h4>
                   <p className="mt-1.5 text-xs text-ink-2 dark:text-night-text-2 leading-snug">
                     Pour des raisons de sécurité, la clé API <strong>{providerMeta.envVar}</strong> est lue côté serveur uniquement.
-                    Configure-la dans ton <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/40">.env</code> en local
-                    ou via <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/40">vercel env add</code> en production.
+                    Configure-la dans ton <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/60">.env</code> en local
+                    ou via <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/60">vercel env add</code> en production.
                   </p>
                   {providerMeta.link !== '#' && (
                     <a
@@ -287,42 +289,61 @@ export function SetupWizardModal({
                   onSubmit={handleAddDraft}
                   className="border-2 border-dashed border-ink dark:border-night-text bg-bone dark:bg-night p-3 space-y-2"
                 >
-                  <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-3 dark:text-night-text-3 mb-1">
+                  <p id="wizard-add-feed-label" className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-3 dark:text-night-text-3 mb-1">
                     Nouveau flux
                   </p>
-                  <input
-                    type="text"
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    placeholder="Nom du flux (ex. The Verge)"
-                    className={inputBase}
-                  />
-                  <input
-                    type="url"
-                    value={newUrl}
-                    onChange={(e) => setNewUrl(e.target.value)}
-                    placeholder="https://example.com/feed.xml"
-                    className={`${inputBase} font-mono text-xs`}
-                  />
+                  <label className="block">
+                    <span className="sr-only">Nom du flux</span>
+                    <input
+                      type="text"
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                      placeholder="Nom du flux (ex. The Verge)"
+                      className={inputBase}
+                      required
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="sr-only">URL du flux RSS</span>
+                    <input
+                      type="url"
+                      value={newUrl}
+                      onChange={(e) => {
+                        setNewUrl(e.target.value)
+                        if (urlError) setUrlError(null)
+                      }}
+                      placeholder="https://example.com/feed.xml"
+                      className={`${inputBase} font-mono text-xs ${urlError ? 'border-vermillion focus:ring-vermillion' : ''}`}
+                      required
+                      aria-invalid={urlError ? true : undefined}
+                      aria-describedby={urlError ? 'wizard-url-error' : undefined}
+                    />
+                  </label>
+                  {urlError && (
+                    <p id="wizard-url-error" role="alert" className="text-xs text-vermillion font-mono leading-snug">
+                      {urlError}
+                    </p>
+                  )}
                   <div className="flex items-center gap-2 pt-1">
                     <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-3 dark:text-night-text-3">
                       Couleur
                     </span>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div role="group" aria-label="Couleur du flux" className="flex flex-wrap gap-1.5">
                       {ACCENT_OPTIONS.map((opt) => (
                         <button
                           key={opt.value}
                           type="button"
                           onClick={() => setNewAccent(opt.value)}
                           className={[
-                            'cursor-pointer h-5 w-5 transition-transform border-2',
+                            'cursor-pointer h-6 w-6 transition-transform border-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion',
                             opt.className,
                             newAccent === opt.value
                               ? 'border-vermillion scale-110'
-                              : 'border-ink dark:border-night-text opacity-70 hover:opacity-100',
+                              : 'border-ink dark:border-night-text opacity-80 hover:opacity-100',
                           ].join(' ')}
-                          aria-label={opt.value}
+                          aria-label={`Couleur ${opt.label}`}
                           aria-pressed={newAccent === opt.value}
+                          title={opt.label}
                         />
                       ))}
                     </div>

@@ -5,6 +5,7 @@ import { Splashscreen } from './sections/workspace/components/Splashscreen'
 import { AppTour } from './sections/workspace/components/AppTour'
 import { SetupWizardModal } from './sections/workspace/components/SetupWizardModal'
 import { SettingsDrawer, type HealthStatus } from './components/SettingsDrawer'
+import { useAnnouncer } from './components/LiveAnnouncer'
 import { useWorkspace } from './lib/useWorkspace'
 import { fetchAllArticles } from './lib/rss-fetch'
 import { generateNewsletter } from './lib/generate'
@@ -34,6 +35,7 @@ function newFeedId(): string {
 
 export default function App() {
   const { state, dispatch } = useWorkspace()
+  const { announce } = useAnnouncer()
   const [theme, setTheme] = useState<'light' | 'dark'>(readStoredTheme)
   const [healthStatus, setHealthStatus] = useState<HealthStatus>('unknown')
   const [healthModel, setHealthModel] = useState<string | undefined>()
@@ -46,6 +48,18 @@ export default function App() {
     document.documentElement.classList.toggle('dark', theme === 'dark')
     window.localStorage.setItem(THEME_KEY, theme)
   }, [theme])
+
+  // Dynamic page title based on app state
+  useEffect(() => {
+    const status = state.newsletter.status
+    const sectionsCount = state.newsletter.sections.length
+    let title = 'Gazette'
+    if (state.ui.isGenerating) title = 'Composition… · Gazette'
+    else if (status === 'ready' && sectionsCount > 0) title = `Newsletter prête (${sectionsCount} rubriques) · Gazette`
+    else if (status === 'error') title = 'Erreur · Gazette'
+    else if (state.articles.length > 0) title = `${state.articles.length} dépêches · Gazette`
+    document.title = title
+  }, [state.newsletter.status, state.newsletter.sections.length, state.ui.isGenerating, state.articles.length])
 
   const checkHealth = useCallback(async () => {
     setHealthStatus('checking')
@@ -70,19 +84,28 @@ export default function App() {
 
   const handleFetchArticles = useCallback(async () => {
     dispatch({ type: 'ui/set-fetching', value: true })
+    announce('Récupération des articles en cours.')
     try {
       const result = await fetchAllArticles(state.feeds, state.filters)
       dispatch({ type: 'articles/set', articles: result.articles })
+      announce(
+        `${result.articles.length} article${result.articles.length > 1 ? 's' : ''} reçu${
+          result.articles.length > 1 ? 's' : ''
+        }.`,
+      )
       if (result.errors.length > 0) {
         console.warn('RSS fetch errors:', result.errors)
       }
     } catch (error) {
       console.error('RSS fetch failed:', error)
+      announce(`Erreur lors de la récupération des flux : ${(error as Error).message}`, {
+        politeness: 'assertive',
+      })
       window.alert(`Erreur lors de la récupération des flux : ${(error as Error).message}`)
     } finally {
       dispatch({ type: 'ui/set-fetching', value: false })
     }
-  }, [dispatch, state.feeds, state.filters])
+  }, [announce, dispatch, state.feeds, state.filters])
 
   const handleGenerateNewsletter = useCallback(async () => {
     const selected = state.articles.filter((a) => a.isSelected)
@@ -93,21 +116,26 @@ export default function App() {
     generationAbortRef.current = controller
 
     dispatch({ type: 'ui/set-generating', value: true })
+    announce('Composition de la newsletter en cours.')
     try {
       const { newsletter } = await generateNewsletter({
         selectedArticles: selected,
         signal: controller.signal,
       })
       dispatch({ type: 'newsletter/set', newsletter })
+      announce('Newsletter prête. Tu peux maintenant éditer chaque rubrique et la copier.')
     } catch (error) {
       if ((error as Error).name === 'AbortError') return
       console.error('Newsletter generation failed:', error)
       dispatch({ type: 'newsletter/status', status: 'error' })
+      announce(`Erreur lors de la génération : ${(error as Error).message}`, {
+        politeness: 'assertive',
+      })
       window.alert(`Erreur lors de la génération : ${(error as Error).message}`)
     } finally {
       dispatch({ type: 'ui/set-generating', value: false })
     }
-  }, [dispatch, state.articles])
+  }, [announce, dispatch, state.articles])
 
   const handleResetData = useCallback(() => {
     clearAllStorage()
@@ -168,22 +196,26 @@ export default function App() {
     try {
       await copyMarkdownToClipboard(state.newsletter)
       triggerCopyFeedback('markdown')
+      announce('Newsletter copiée au format Markdown.')
     } catch (error) {
       console.error('Copy markdown failed:', error)
+      announce(`Erreur lors de la copie : ${(error as Error).message}`, { politeness: 'assertive' })
       window.alert(`Erreur lors de la copie : ${(error as Error).message}`)
     }
-  }, [state.newsletter, triggerCopyFeedback])
+  }, [announce, state.newsletter, triggerCopyFeedback])
 
   const handleCopyHtml = useCallback(async () => {
     if (state.newsletter.sections.length === 0) return
     try {
       await copyHtmlToClipboard(state.newsletter)
       triggerCopyFeedback('html')
+      announce('Newsletter copiée au format HTML.')
     } catch (error) {
       console.error('Copy HTML failed:', error)
+      announce(`Erreur lors de la copie : ${(error as Error).message}`, { politeness: 'assertive' })
       window.alert(`Erreur lors de la copie : ${(error as Error).message}`)
     }
-  }, [state.newsletter, triggerCopyFeedback])
+  }, [announce, state.newsletter, triggerCopyFeedback])
 
   // First-launch chain: splash → tour (if not seen) → wizard (if not seen)
   function handleSplashDone() {
