@@ -31,12 +31,12 @@ export function MainNav({
   return (
     <header
       data-tour="main-nav"
-      className="relative z-30 h-11 md:h-12 shrink-0 flex items-center justify-between gap-2 sm:gap-3 px-3 md:px-5 bg-bone dark:bg-night border-b-2 border-ink dark:border-night-text"
+      className="relative z-30 h-12 md:h-14 shrink-0 flex items-center justify-between gap-2 sm:gap-3 px-3 md:px-5 bg-bone dark:bg-night border-b-2 border-ink dark:border-night-text"
     >
       <button
         type="button"
         onClick={onLogoClick}
-        className="group flex items-baseline gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion focus-visible:ring-offset-2 focus-visible:ring-offset-bone dark:focus-visible:ring-offset-night px-1 -ml-1 min-w-0"
+        className="group flex items-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion focus-visible:ring-offset-2 focus-visible:ring-offset-bone dark:focus-visible:ring-offset-night px-1 -ml-1 min-w-0"
         aria-label="Gazette — accueil"
       >
         <img
@@ -48,7 +48,7 @@ export function MainNav({
         <span className="font-display font-black tracking-tighter text-[20px] md:text-[22px] leading-none text-ink dark:text-night-text">
           Gazette
         </span>
-        <span className="hidden sm:inline font-mono text-[9px] uppercase tracking-[0.22em] text-vermillion -translate-y-0.5 shrink-0">
+        <span className="hidden sm:inline font-mono text-[9px] uppercase tracking-[0.22em] text-vermillion shrink-0 self-center">
           № {ISSUE_NUMBER}
         </span>
       </button>
