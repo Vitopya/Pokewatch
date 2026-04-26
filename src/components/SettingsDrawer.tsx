@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Compass, Plus, RotateCcw, Sparkles, Trash2, Wifi, WifiOff, X } from 'lucide-react'
 import type { AiProvider, FeedAccentColor, RssFeed } from '../sections/workspace/types'
@@ -70,15 +70,6 @@ export function SettingsDrawer({
   const [newUrl, setNewUrl] = useState('')
   const [newAccent, setNewAccent] = useState<FeedAccentColor>('sky')
   const [showResetConfirm, setShowResetConfirm] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const drawerRef = useRef<HTMLDivElement>(null)
-
-  // Mount slightly after open=true so CSS transition plays
-  useEffect(() => {
-    if (open) {
-      setMounted(true)
-    }
-  }, [open])
 
   // Close on Escape
   useEffect(() => {
@@ -126,7 +117,7 @@ export function SettingsDrawer({
     setNewUrl('')
   }
 
-  if (!mounted && !open) return null
+  if (!open) return null
 
   return createPortal(
     <div
@@ -149,7 +140,6 @@ export function SettingsDrawer({
 
       {/* Drawer panel */}
       <div
-        ref={drawerRef}
         style={{
           position: 'relative',
           zIndex: 1,
