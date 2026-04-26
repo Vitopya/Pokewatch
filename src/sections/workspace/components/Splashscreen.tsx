@@ -36,12 +36,12 @@ export function Splashscreen({ onDone, duration = 1700 }: SplashscreenProps) {
         ].join(' ')}
       >
         <div className="flex items-center gap-3 mb-5">
-          <span
+          <img
+            src="/logo.png"
+            alt=""
             aria-hidden="true"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-vermillion text-paper text-base font-display font-black ring-2 ring-ink dark:ring-night-text"
-          >
-            G
-          </span>
+            className="h-12 w-12 sm:h-14 sm:w-14 object-contain"
+          />
           <h1 className="font-display font-black tracking-[-0.04em] text-[44px] sm:text-[56px] leading-none text-ink dark:text-night-text">
             Gazette
           </h1>

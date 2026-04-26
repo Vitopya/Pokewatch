@@ -39,12 +39,12 @@ export function MainNav({
         className="group flex items-baseline gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion focus-visible:ring-offset-2 focus-visible:ring-offset-bone dark:focus-visible:ring-offset-night px-1 -ml-1 min-w-0"
         aria-label="Gazette — accueil"
       >
-        <span
+        <img
+          src="/logo.png"
+          alt=""
           aria-hidden="true"
-          className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-vermillion text-paper text-[10px] font-display font-black ring-2 ring-ink dark:ring-night-text shrink-0"
-        >
-          G
-        </span>
+          className="h-7 w-7 md:h-8 md:w-8 object-contain shrink-0"
+        />
         <span className="font-display font-black tracking-tighter text-[20px] md:text-[22px] leading-none text-ink dark:text-night-text">
           Gazette
         </span>
