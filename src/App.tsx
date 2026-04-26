@@ -284,6 +284,10 @@ export default function App() {
             dispatch({ type: 'section/reorder', orderedIds })
           }
           onDeleteSection={(sectionId) => dispatch({ type: 'section/delete', sectionId })}
+          onDeleteItem={(itemId) => dispatch({ type: 'item/delete', itemId })}
+          onReorderItems={(sectionId, orderedItemIds) =>
+            dispatch({ type: 'item/reorder', sectionId, orderedItemIds })
+          }
           onEditItemTitle={(itemId, title) =>
             dispatch({ type: 'item/edit-title', itemId, title })
           }

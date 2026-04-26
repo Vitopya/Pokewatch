@@ -43,6 +43,8 @@ export type WorkspaceAction =
   | { type: 'item/reorder-bullets'; itemId: string; orderedBullets: string[] }
   | { type: 'item/replace-image'; itemId: string; imageUrl: string }
   | { type: 'item/remove-image'; itemId: string }
+  | { type: 'item/delete'; itemId: string }
+  | { type: 'item/reorder'; sectionId: string; orderedItemIds: string[] }
   | { type: 'ui/set-fetching'; value: boolean }
   | { type: 'ui/set-generating'; value: boolean }
   | { type: 'ui/set-settings-open'; value: boolean }
@@ -255,6 +257,35 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
           imageUrl: null,
         })),
       }
+
+    case 'item/delete':
+      return {
+        ...state,
+        newsletter: {
+          ...state.newsletter,
+          sections: state.newsletter.sections
+            .map((s) => ({ ...s, items: s.items.filter((i) => i.id !== action.itemId) }))
+            .filter((s) => s.items.length > 0),
+        },
+      }
+
+    case 'item/reorder': {
+      return {
+        ...state,
+        newsletter: {
+          ...state.newsletter,
+          sections: state.newsletter.sections.map((section) => {
+            if (section.id !== action.sectionId) return section
+            const byId = new Map(section.items.map((i) => [i.id, i]))
+            const reordered = action.orderedItemIds
+              .map((id) => byId.get(id))
+              .filter((i): i is typeof section.items[number] => Boolean(i))
+            const remaining = section.items.filter((i) => !action.orderedItemIds.includes(i.id))
+            return { ...section, items: [...reordered, ...remaining] }
+          }),
+        },
+      }
+    }
 
     case 'ui/set-fetching':
       return { ...state, ui: { ...state.ui, isFetching: action.value } }

@@ -34,6 +34,8 @@ export interface NewsletterPanelProps {
   onReorderSections?: (orderedSectionIds: string[]) => void
   onEditSectionTitle?: (sectionId: string, title: string) => void
   onDeleteSection?: (sectionId: string) => void
+  onDeleteItem?: (itemId: string) => void
+  onReorderItems?: (sectionId: string, orderedItemIds: string[]) => void
   onEditItemTitle?: (itemId: string, title: string) => void
   onEditItemDescription?: (itemId: string, description: string) => void
   onEditItemBullet?: (itemId: string, bulletIndex: number, value: string) => void
@@ -97,6 +99,8 @@ interface SortableSectionProps {
   section: NewsletterSection
   onEditSectionTitle?: (title: string) => void
   onDeleteSection?: () => void
+  onDeleteItem?: (itemId: string) => void
+  onReorderItems?: (orderedItemIds: string[]) => void
   onEditItemTitle?: (itemId: string, title: string) => void
   onEditItemDescription?: (itemId: string, description: string) => void
   onEditItemBullet?: (itemId: string, bulletIndex: number, value: string) => void
@@ -135,6 +139,8 @@ export function NewsletterPanel({
   onReorderSections,
   onEditSectionTitle,
   onDeleteSection,
+  onDeleteItem,
+  onReorderItems,
   onEditItemTitle,
   onEditItemDescription,
   onEditItemBullet,
@@ -246,6 +252,8 @@ export function NewsletterPanel({
                         section={section}
                         onEditSectionTitle={(title) => onEditSectionTitle?.(section.id, title)}
                         onDeleteSection={() => onDeleteSection?.(section.id)}
+                        onDeleteItem={onDeleteItem}
+                        onReorderItems={(orderedItemIds) => onReorderItems?.(section.id, orderedItemIds)}
                         onEditItemTitle={onEditItemTitle}
                         onEditItemDescription={onEditItemDescription}
                         onEditItemBullet={onEditItemBullet}

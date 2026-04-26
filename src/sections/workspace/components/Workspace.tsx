@@ -24,6 +24,8 @@ export function Workspace({
   onEditSectionTitle,
   onReorderSections,
   onDeleteSection,
+  onDeleteItem,
+  onReorderItems,
   onEditItemTitle,
   onEditItemDescription,
   onEditItemBullet,
@@ -75,6 +77,8 @@ export function Workspace({
             onReorderSections={onReorderSections}
             onEditSectionTitle={onEditSectionTitle}
             onDeleteSection={onDeleteSection}
+            onDeleteItem={onDeleteItem}
+            onReorderItems={onReorderItems}
             onEditItemTitle={onEditItemTitle}
             onEditItemDescription={onEditItemDescription}
             onEditItemBullet={onEditItemBullet}

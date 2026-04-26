@@ -141,6 +141,11 @@ export interface WorkspaceProps {
   /** Delete a section entirely. */
   onDeleteSection?: (sectionId: string) => void
 
+  /** Delete a single newsletter item. Section is removed if empty. */
+  onDeleteItem?: (itemId: string) => void
+  /** Reorder items inside a section. */
+  onReorderItems?: (sectionId: string, orderedItemIds: string[]) => void
+
   /** Edit an item title inline. */
   onEditItemTitle?: (itemId: string, title: string) => void
   /** Edit an item short description inline. */

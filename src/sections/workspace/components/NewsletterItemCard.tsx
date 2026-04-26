@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { ImageOff, ImagePlus, Plus, X } from 'lucide-react'
+import { useState, type HTMLAttributes } from 'react'
+import { GripVertical, ImageOff, ImagePlus, Plus, Trash2, X } from 'lucide-react'
 import type { NewsletterItem } from '../types'
 import { RichTextEditor } from '../../../components/RichTextEditor'
 
@@ -7,6 +7,8 @@ export interface NewsletterItemCardProps {
   item: NewsletterItem
   index?: number
   isLead?: boolean
+  dragHandleProps?: HTMLAttributes<HTMLButtonElement>
+  onDelete?: () => void
   onEditTitle?: (title: string) => void
   onEditDescription?: (description: string) => void
   onEditBullet?: (bulletIndex: number, value: string) => void
@@ -20,6 +22,8 @@ export function NewsletterItemCard({
   item,
   index = 0,
   isLead = false,
+  dragHandleProps,
+  onDelete,
   onEditTitle,
   onEditDescription,
   onEditBullet,
@@ -108,9 +112,31 @@ export function NewsletterItemCard({
 
         <div className="flex-1 min-w-0 p-4 md:p-5">
           <div className="flex items-center gap-2 mb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-3 dark:text-night-text-3">
+            {dragHandleProps && (
+              <button
+                type="button"
+                {...dragHandleProps}
+                className="cursor-grab active:cursor-grabbing inline-flex h-4 w-4 items-center justify-center text-ink-4 hover:text-ink dark:text-night-text-3 dark:hover:text-night-text transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 touch-none"
+                aria-label="Réordonner cette carte (drag)"
+                title="Glisser pour réordonner"
+              >
+                <GripVertical className="h-3.5 w-3.5" aria-hidden="true" strokeWidth={2.25} />
+              </button>
+            )}
             <span className="font-bold text-vermillion">№{String(index + 1).padStart(2, '0')}</span>
             <span className="h-px flex-1 bg-rule dark:bg-night-rule" aria-hidden="true" />
             <span className="truncate">Source · {item.sourceName}</span>
+            {onDelete && (
+              <button
+                type="button"
+                onClick={onDelete}
+                className="cursor-pointer inline-flex h-5 w-5 items-center justify-center text-ink-4 hover:bg-vermillion hover:text-paper dark:text-night-text-3 dark:hover:bg-vermillion dark:hover:text-paper transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                aria-label="Supprimer cette carte"
+                title="Supprimer la carte"
+              >
+                <Trash2 className="h-3 w-3" aria-hidden="true" strokeWidth={2.25} />
+              </button>
+            )}
           </div>
 
           <input
