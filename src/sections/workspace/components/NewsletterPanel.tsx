@@ -209,13 +209,13 @@ export function NewsletterPanel({
 
       <div className="relative flex-1 min-h-0 overflow-y-auto bg-bone dark:bg-night">
         {isGenerating ? (
-          <div className="px-4 py-5 md:px-8 md:py-7 max-w-3xl">
+          <div className="px-4 py-5 md:px-8 md:py-7 w-full">
             <NewsletterSkeleton />
           </div>
         ) : hasContent ? (
           <>
             <div className="px-4 pt-5 pb-3 md:px-8 md:pt-7 md:pb-4 border-b-2 border-ink dark:border-night-text bg-paper dark:bg-night-paper">
-              <div className="max-w-3xl">
+              <div className="w-full">
                 <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-vermillion mb-1.5">
                   Édition · {formatGeneratedDate(newsletter.generatedAt)}
                 </p>
@@ -229,7 +229,7 @@ export function NewsletterPanel({
                 </div>
               </div>
             </div>
-            <div className="px-4 py-6 md:px-8 md:py-8 max-w-3xl">
+            <div className="px-4 py-6 md:px-8 md:py-8 w-full">
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}

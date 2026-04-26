@@ -493,9 +493,9 @@ export function SettingsDrawer({
           </section>
         </div>
 
-        <footer className="border-t-2 border-ink dark:border-night-text bg-bone dark:bg-night px-5 py-3 font-mono text-[9px] uppercase tracking-[0.24em] text-ink-3 dark:text-night-text-3 flex items-center justify-between shrink-0">
-          <span>Gazette · Panneau de contrôle</span>
-          <span>v1.0</span>
+        <footer className="border-t-2 border-ink dark:border-night-text bg-bone dark:bg-night px-5 py-3 font-mono text-[9px] uppercase tracking-[0.24em] text-ink-3 dark:text-night-text-3 flex items-center justify-between gap-3 shrink-0">
+          <span className="truncate">© 2026 tous droits réservés — Joseph Deffayet | Designer</span>
+          <span className="shrink-0">v1.0</span>
         </footer>
       </div>
     </div>,
