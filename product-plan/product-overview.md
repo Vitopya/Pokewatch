@@ -1,12 +1,12 @@
-# PokeWatch — Product Overview
+# Gazette — Product Overview
 
 ## Summary
 
-PokeWatch est une webapp single-screen qui transforme des flux RSS Pokémon en newsletters structurées, illustrées et synthétiques. À gauche, gestion des flux RSS et filtres de recherche ; à droite, une newsletter générée par IA, groupée par type d'événement, éditable inline et copiable en markdown ou HTML.
+Gazette est une webapp single-screen qui transforme des flux RSS sujet en newsletters structurées, illustrées et synthétiques. À gauche, gestion des flux RSS et filtres de recherche ; à droite, une newsletter générée par IA, groupée par type d'événement, éditable inline et copiable en markdown ou HTML.
 
 ## Planned Sections
 
-1. **Workspace** — Écran principal et unique de PokeWatch. Combine la gestion des flux RSS, les filtres de recherche, la sélection d'articles et la génération/édition de newsletter dans une vue split vertical (panneaux côte-à-côte gauche/droite).
+1. **Workspace** — Écran principal et unique de Gazette. Combine la gestion des flux RSS, les filtres de recherche, la sélection d'articles et la génération/édition de newsletter dans une vue split vertical (panneaux côte-à-côte gauche/droite).
 
 > Note : la roadmap initiale définissait 5 sections (Gestion flux RSS, Recherche/filtres, Génération, Édition/export, Paramètres). Vu le caractère single-screen du produit, les sections 2/3/4 ont été regroupées dans la section unique "Workspace". Les sections 1 et 5 sont implémentées sous forme de drawer paramètres accessible depuis le shell (non couvert par cet export — à concevoir lors de l'implémentation).
 
@@ -24,7 +24,7 @@ PokeWatch est une webapp single-screen qui transforme des flux RSS Pokémon en n
 ## Design System
 
 **Colors:**
-- Primary: `sky` (Tailwind) — actions principales, focus, accents bleu Pokémon GO
+- Primary: `sky` (Tailwind) — actions principales, focus, accents bleu la thématique
 - Secondary: `rose` (Tailwind) — CTA destructive, accents secondaires, panneau newsletter
 - Neutral: `zinc` (Tailwind) — backgrounds, borders, text
 

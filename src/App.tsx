@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AppShell } from './shell/components/AppShell'
 import { Workspace } from './sections/workspace/components/Workspace'
+import { Splashscreen } from './sections/workspace/components/Splashscreen'
+import { AppTour } from './sections/workspace/components/AppTour'
+import { SetupWizardModal } from './sections/workspace/components/SetupWizardModal'
 import { SettingsDrawer, type HealthStatus } from './components/SettingsDrawer'
 import { useWorkspace } from './lib/useWorkspace'
 import { fetchAllArticles } from './lib/rss-fetch'
@@ -10,13 +13,13 @@ import { copyHtmlToClipboard, copyMarkdownToClipboard } from './lib/serialize'
 import {
   buildEmptyNewsletter,
   buildInitialFilters,
-  buildInitialOnboarding,
+  buildInitialSetup,
   DEFAULT_FEEDS,
   INITIAL_UI,
 } from './lib/initial-state'
-import type { FeedAccentColor } from './sections/workspace/types'
+import type { AiProvider, FeedAccentColor } from './sections/workspace/types'
 
-const THEME_KEY = 'pokewatch:theme'
+const THEME_KEY = 'gazette:theme'
 
 function readStoredTheme(): 'light' | 'dark' {
   if (typeof window === 'undefined') return 'light'
@@ -34,6 +37,9 @@ export default function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(readStoredTheme)
   const [healthStatus, setHealthStatus] = useState<HealthStatus>('unknown')
   const [healthModel, setHealthModel] = useState<string | undefined>()
+  const [showSplash, setShowSplash] = useState<boolean>(!state.setup.splashSeen)
+  const [showTour, setShowTour] = useState<boolean>(false)
+  const [showWizard, setShowWizard] = useState<boolean>(false)
   const generationAbortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
@@ -49,16 +55,13 @@ export default function App() {
       setHealthModel(data.model)
       if (response.ok && data.status === 'ok') {
         setHealthStatus('ok')
-        if (!state.onboarding.steps.find((s) => s.key === 'api-key')?.completed) {
-          dispatch({ type: 'onboarding/complete-step', stepKey: 'api-key' })
-        }
       } else {
         setHealthStatus(data.status === 'missing-key' ? 'missing-key' : 'error')
       }
     } catch {
       setHealthStatus('error')
     }
-  }, [dispatch, state.onboarding.steps])
+  }, [])
 
   useEffect(() => {
     void checkHealth()
@@ -73,22 +76,13 @@ export default function App() {
       if (result.errors.length > 0) {
         console.warn('RSS fetch errors:', result.errors)
       }
-      const firstFeedDone = state.onboarding.steps.find((s) => s.key === 'first-feed')?.completed
-      if (state.feeds.length > 0 && !firstFeedDone) {
-        dispatch({ type: 'onboarding/complete-step', stepKey: 'first-feed' })
-      }
-      const firstSearchDone = state.onboarding.steps.find((s) => s.key === 'first-search')
-        ?.completed
-      if (!firstSearchDone) {
-        dispatch({ type: 'onboarding/complete-step', stepKey: 'first-search' })
-      }
     } catch (error) {
       console.error('RSS fetch failed:', error)
       window.alert(`Erreur lors de la récupération des flux : ${(error as Error).message}`)
     } finally {
       dispatch({ type: 'ui/set-fetching', value: false })
     }
-  }, [dispatch, state.feeds, state.filters, state.onboarding.steps])
+  }, [dispatch, state.feeds, state.filters])
 
   const handleGenerateNewsletter = useCallback(async () => {
     const selected = state.articles.filter((a) => a.isSelected)
@@ -124,10 +118,11 @@ export default function App() {
         filters: buildInitialFilters(),
         articles: [],
         newsletter: buildEmptyNewsletter(),
-        onboarding: buildInitialOnboarding(),
+        setup: buildInitialSetup(),
         ui: { ...INITIAL_UI, isSettingsOpen: false },
       },
     })
+    setShowSplash(true)
   }, [dispatch])
 
   const handleAddFeed = useCallback(
@@ -143,12 +138,8 @@ export default function App() {
           lastSyncedAt: null,
         },
       })
-      const firstFeedDone = state.onboarding.steps.find((s) => s.key === 'first-feed')?.completed
-      if (!firstFeedDone) {
-        dispatch({ type: 'onboarding/complete-step', stepKey: 'first-feed' })
-      }
     },
-    [dispatch, state.onboarding.steps],
+    [dispatch],
   )
 
   const setSettingsOpen = useCallback(
@@ -194,10 +185,64 @@ export default function App() {
     }
   }, [state.newsletter, triggerCopyFeedback])
 
+  // First-launch chain: splash → tour (if not seen) → wizard (if not seen)
+  function handleSplashDone() {
+    setShowSplash(false)
+    dispatch({ type: 'setup/patch', patch: { splashSeen: true } })
+    if (!state.setup.tourSeen) {
+      setShowTour(true)
+    } else if (!state.setup.wizardSeen) {
+      setShowWizard(true)
+    }
+  }
+
+  function handleTourClose() {
+    setShowTour(false)
+    dispatch({ type: 'setup/patch', patch: { tourSeen: true } })
+  }
+
+  function handleTourComplete() {
+    setShowTour(false)
+    dispatch({ type: 'setup/patch', patch: { tourSeen: true } })
+    if (!state.setup.wizardSeen) {
+      setShowWizard(true)
+    }
+  }
+
+  function handleWizardClose() {
+    setShowWizard(false)
+    dispatch({ type: 'setup/patch', patch: { wizardSeen: true } })
+  }
+
+  function handleWizardComplete() {
+    setShowWizard(false)
+    dispatch({ type: 'setup/patch', patch: { wizardSeen: true } })
+    // kick off first search if at least one feed exists
+    setTimeout(() => {
+      void handleFetchArticles()
+    }, 50)
+  }
+
+  function handleProviderChange(provider: AiProvider) {
+    dispatch({ type: 'setup/set-provider', provider })
+  }
+
+  function handleReplayTour() {
+    setSettingsOpen(false)
+    setShowTour(true)
+  }
+
+  function handleReopenWizard() {
+    setSettingsOpen(false)
+    setShowWizard(true)
+  }
+
   return (
     <>
+      {showSplash && <Splashscreen onDone={handleSplashDone} />}
+
       <AppShell
-        user={{ name: 'Joseph Deffayet' }}
+        user={{ name: 'Utilisateur' }}
         theme={theme}
         onLogoClick={() => dispatch({ type: 'ui/set-active-panel', panel: 'rss' })}
         onOpenSettings={() => setSettingsOpen(true)}
@@ -209,14 +254,13 @@ export default function App() {
           filters={state.filters}
           articles={state.articles}
           newsletter={state.newsletter}
-          onboarding={state.onboarding}
           ui={state.ui}
           onOpenSettings={() => setSettingsOpen(true)}
           onChangeActivePanel={(panel) =>
             dispatch({ type: 'ui/set-active-panel', panel })
           }
           onAddFeed={(input) =>
-            handleAddFeed({ title: input.title ?? 'Nouveau flux', url: input.url, accentColor: 'sky' })
+            handleAddFeed({ title: input.title ?? 'Nouvelle source', url: input.url, accentColor: 'sky' })
           }
           onRemoveFeed={(feedId) => dispatch({ type: 'feed/remove', feedId })}
           onToggleFeedActive={(feedId, isActive) =>
@@ -260,23 +304,44 @@ export default function App() {
           onRemoveItemImage={(itemId) => dispatch({ type: 'item/remove-image', itemId })}
           onCopyMarkdown={handleCopyMarkdown}
           onCopyHtml={handleCopyHtml}
-          onCompleteOnboardingStep={(stepKey) =>
-            dispatch({ type: 'onboarding/complete-step', stepKey })
-          }
         />
       </AppShell>
+
+      {showTour && !showSplash && (
+        <AppTour onClose={handleTourClose} onComplete={handleTourComplete} />
+      )}
+
+      {showWizard && !showSplash && (
+        <SetupWizardModal
+          open={showWizard}
+          initialProvider={state.setup.provider}
+          existingFeeds={state.feeds}
+          onProviderChange={handleProviderChange}
+          onCommitFeeds={(drafts) => {
+            for (const d of drafts) {
+              handleAddFeed(d)
+            }
+          }}
+          onClose={handleWizardClose}
+          onComplete={handleWizardComplete}
+        />
+      )}
 
       <SettingsDrawer
         open={state.ui.isSettingsOpen}
         onOpenChange={setSettingsOpen}
         feeds={state.feeds}
+        provider={state.setup.provider}
         healthStatus={healthStatus}
         healthModel={healthModel}
         onCheckHealth={checkHealth}
+        onProviderChange={handleProviderChange}
         onAddFeed={handleAddFeed}
         onRemoveFeed={(feedId) => dispatch({ type: 'feed/remove', feedId })}
         onUpdateFeed={(feedId, patch) => dispatch({ type: 'feed/update', feedId, patch })}
         onResetData={handleResetData}
+        onReplayTour={handleReplayTour}
+        onReopenWizard={handleReopenWizard}
       />
     </>
   )

@@ -1,4 +1,4 @@
-﻿import { Check, Code2, Copy, FileDown, RefreshCw } from 'lucide-react'
+import { Check, Code2, Copy, FileDown, RefreshCw } from 'lucide-react'
 import {
   DndContext,
   PointerSensor,
@@ -45,12 +45,21 @@ export interface NewsletterPanelProps {
 
 function formatGeneratedDate(iso: string | null) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleString('fr-FR', {
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  return new Date(iso)
+    .toLocaleString('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+    .toUpperCase()
+}
+
+const STATUS_LABEL: Record<Newsletter['status'], string> = {
+  draft: 'Brouillon',
+  generating: "À l'impression",
+  ready: 'Bouclée',
+  error: 'Avarie',
 }
 
 function CopyButton({
@@ -71,17 +80,15 @@ function CopyButton({
       type="button"
       onClick={onClick}
       className={[
-        'cursor-pointer inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500',
+        'cursor-pointer inline-flex items-center gap-1 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.16em] border-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion',
         isLastCopied
-          ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-          : 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-200 dark:ring-zinc-700 dark:hover:bg-zinc-800',
+          ? 'bg-moss text-paper border-ink dark:border-night-text'
+          : 'bg-paper text-ink border-ink hover:bg-ink hover:text-paper dark:bg-night-paper dark:text-night-text dark:border-night-text dark:hover:bg-night-text dark:hover:text-night',
       ].join(' ')}
       aria-label={`Copier en ${label}`}
     >
-      {isLastCopied ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Icon className="h-3.5 w-3.5" aria-hidden="true" />}
-      <span className="hidden sm:inline">
-        {isLastCopied ? `Copié ${format === 'markdown' ? 'MD' : 'HTML'}` : `Copier ${format === 'markdown' ? 'MD' : 'HTML'}`}
-      </span>
+      {isLastCopied ? <Check className="h-3 w-3" aria-hidden="true" strokeWidth={3} /> : <Icon className="h-3 w-3" aria-hidden="true" strokeWidth={2.25} />}
+      <span className="hidden sm:inline">{format === 'markdown' ? 'MD' : 'HTML'}</span>
     </button>
   )
 }
@@ -158,26 +165,20 @@ export function NewsletterPanel({
   return (
     <section
       aria-label="Newsletter générée"
-      className="relative flex h-full flex-col bg-zinc-50/50 dark:bg-zinc-950/40"
+      className="paper-grain relative flex h-full min-h-0 flex-col bg-paper dark:bg-night-paper"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-rose-50/40 via-transparent to-transparent dark:from-rose-500/5"
-      />
-
-      <header className="relative px-5 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-start justify-between gap-3 bg-white/80 dark:bg-zinc-900/80 backdrop-blur">
-        <div className="min-w-0">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-rose-600 dark:text-rose-400">
-            Panneau droit · {newsletter.status === 'ready' ? 'Prête' : isGenerating ? 'En génération' : 'Brouillon'}
-          </span>
-          <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50 truncate">
-            {newsletter.title}
-          </h2>
-          <p className="mt-0.5 font-mono text-[11px] text-zinc-400 dark:text-zinc-500">
-            Générée le {formatGeneratedDate(newsletter.generatedAt)} · {totalItems} item{totalItems > 1 ? 's' : ''} · {newsletter.sections.length} section{newsletter.sections.length > 1 ? 's' : ''}
+      <header className="shrink-0 px-4 py-2.5 border-b-2 border-ink dark:border-night-text bg-paper dark:bg-night-paper flex items-center justify-between gap-3">
+        <div className="min-w-0 flex items-center gap-2">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-vermillion shrink-0">
+            B · Édition
           </p>
+          <span aria-hidden="true" className="text-rule dark:text-night-rule">/</span>
+          <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-3 dark:text-night-text-3 truncate">
+            <span className={`inline-block h-1.5 w-1.5 shrink-0 ${newsletter.status === 'ready' ? 'bg-moss' : isGenerating ? 'bg-vermillion animate-pulse' : 'bg-ink-4 dark:bg-night-text-3'}`} aria-hidden="true" />
+            {STATUS_LABEL[newsletter.status]}
+          </span>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 shrink-0">
           <CopyButton
             format="markdown"
             label="markdown"
@@ -196,59 +197,89 @@ export function NewsletterPanel({
             type="button"
             onClick={onRegenerate}
             disabled={isGenerating}
-            className="cursor-pointer inline-flex h-7 w-7 sm:h-auto sm:w-auto sm:px-2.5 sm:py-1.5 items-center justify-center gap-1.5 rounded-md bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 dark:focus-visible:ring-white disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer inline-flex items-center gap-1 px-2 py-1 bg-ink text-paper dark:bg-night-text dark:text-night font-mono text-[10px] uppercase tracking-[0.16em] border-2 border-ink dark:border-night-text hover:bg-vermillion hover:border-vermillion dark:hover:bg-vermillion dark:hover:text-paper dark:hover:border-vermillion transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Régénérer la newsletter"
             title="Régénérer"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isGenerating ? 'animate-spin' : ''}`} aria-hidden="true" />
-            <span className="hidden sm:inline">Régénérer</span>
+            <RefreshCw className={`h-3 w-3 ${isGenerating ? 'animate-spin' : ''}`} aria-hidden="true" strokeWidth={2.25} />
+            <span className="hidden sm:inline">Recomposer</span>
           </button>
         </div>
       </header>
 
-      <div className="relative flex-1 min-h-0 overflow-y-auto px-5 py-6 md:px-8 md:py-8">
+      <div className="relative flex-1 min-h-0 overflow-y-auto bg-bone dark:bg-night">
         {isGenerating ? (
-          <NewsletterSkeleton />
+          <div className="px-4 py-5 md:px-8 md:py-7 max-w-3xl">
+            <NewsletterSkeleton />
+          </div>
         ) : hasContent ? (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={newsletter.sections.map((s) => s.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="space-y-10 max-w-3xl">
-                {newsletter.sections.map((section) => (
-                  <SortableSection
-                    key={section.id}
-                    section={section}
-                    onEditSectionTitle={(title) => onEditSectionTitle?.(section.id, title)}
-                    onDeleteSection={() => onDeleteSection?.(section.id)}
-                    onEditItemTitle={onEditItemTitle}
-                    onEditItemDescription={onEditItemDescription}
-                    onEditItemBullet={onEditItemBullet}
-                    onAddItemBullet={onAddItemBullet}
-                    onRemoveItemBullet={onRemoveItemBullet}
-                    onReplaceItemImage={onReplaceItemImage}
-                    onRemoveItemImage={onRemoveItemImage}
-                  />
-                ))}
+          <>
+            <div className="px-4 pt-5 pb-3 md:px-8 md:pt-7 md:pb-4 border-b-2 border-ink dark:border-night-text bg-paper dark:bg-night-paper">
+              <div className="max-w-3xl">
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-vermillion mb-1.5">
+                  Édition · {formatGeneratedDate(newsletter.generatedAt)}
+                </p>
+                <h1 className="font-display font-black tracking-[-0.04em] leading-[0.92] text-ink dark:text-night-text text-[28px] sm:text-[36px] md:text-[44px]">
+                  {newsletter.title}
+                </h1>
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-3 dark:text-night-text-3">
+                  <span>{String(totalItems).padStart(2, '0')} sujet{totalItems > 1 ? 's' : ''}</span>
+                  <span aria-hidden="true" className="text-rule dark:text-night-rule">·</span>
+                  <span>{String(newsletter.sections.length).padStart(2, '0')} rubrique{newsletter.sections.length > 1 ? 's' : ''}</span>
+                </div>
               </div>
-            </SortableContext>
-          </DndContext>
+            </div>
+            <div className="px-4 py-6 md:px-8 md:py-8 max-w-3xl">
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={newsletter.sections.map((s) => s.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-10">
+                    {newsletter.sections.map((section) => (
+                      <SortableSection
+                        key={section.id}
+                        section={section}
+                        onEditSectionTitle={(title) => onEditSectionTitle?.(section.id, title)}
+                        onDeleteSection={() => onDeleteSection?.(section.id)}
+                        onEditItemTitle={onEditItemTitle}
+                        onEditItemDescription={onEditItemDescription}
+                        onEditItemBullet={onEditItemBullet}
+                        onAddItemBullet={onAddItemBullet}
+                        onRemoveItemBullet={onRemoveItemBullet}
+                        onReplaceItemImage={onReplaceItemImage}
+                        onRemoveItemImage={onRemoveItemImage}
+                      />
+                    ))}
+                    <div aria-hidden="true" className="pt-4 border-t-2 border-ink dark:border-night-text text-center font-mono text-[10px] uppercase tracking-[0.3em] text-ink-3 dark:text-night-text-3">
+                      — Fin de l'édition —
+                    </div>
+                  </div>
+                </SortableContext>
+              </DndContext>
+            </div>
+          </>
         ) : (
-          <div className="flex h-full items-center justify-center">
+          <div className="flex h-full items-center justify-center px-5 py-8">
             <div className="text-center max-w-sm">
-              <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500">
-                <FileDown className="h-5 w-5" aria-hidden="true" />
+              <div
+                aria-hidden="true"
+                className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center bg-paper dark:bg-night-paper border-2 border-ink dark:border-night-text text-vermillion shadow-[3px_3px_0_0_rgba(14,14,12,1)] dark:shadow-[3px_3px_0_0_rgba(232,226,212,0.5)]"
+              >
+                <FileDown className="h-5 w-5" strokeWidth={1.75} />
               </div>
-              <h3 className="mt-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                Aucune newsletter pour le moment
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-vermillion mb-1.5">
+                Page blanche
+              </p>
+              <h3 className="font-display text-2xl font-black tracking-tighter text-ink dark:text-night-text leading-tight">
+                L'édition n'est pas encore composée.
               </h3>
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                Sélectionne des articles puis lance la génération depuis le panneau gauche.
+              <p className="mt-2 font-display italic text-sm text-ink-3 dark:text-night-text-3">
+                Sélectionne tes dépêches dans le panneau Sources, puis lance la composition.
               </p>
             </div>
           </div>

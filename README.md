@@ -1,12 +1,12 @@
-﻿# PokeWatch
+# Gazette
 
-Webapp single-screen : flux RSS Pokémon → newsletter générée par Google Gemini. Édition inline, copie markdown ou HTML rich.
+Webapp single-screen, white-label : tu connectes des flux RSS, sélectionnes les articles, et un LLM (Gemini par défaut, Anthropic, OpenAI…) compose une newsletter structurée. Édition inline, copie markdown ou HTML.
 
 ## Setup
 
 ```bash
 npm install
-cp .env.example .env   # ajoute ton GEMINI_API_KEY
+cp .env.example .env   # ajoute la clé du provider IA choisi
 npm run dev            # http://localhost:3000
 ```
 
@@ -31,20 +31,20 @@ vercel env add GEMINI_API_KEY
 vercel --prod
 ```
 
-Variables d'env : `GEMINI_API_KEY` (obligatoire), `GEMINI_MODEL` (optionnel, défaut `gemini-2.5-flash`).
+Variables d'env : `GEMINI_API_KEY` (obligatoire pour le provider Gemini), `GEMINI_MODEL` (optionnel, défaut `gemini-2.5-flash`).
 
 ## Architecture
 
 - `api/` — fonctions serverless : `health`, `rss`, `generate` (SSE streaming)
-- `src/App.tsx` — câblage shell + workspace + drawer + reducer
+- `src/App.tsx` — câblage shell + workspace + drawer + tour + reducer
 - `src/lib/` — reducer, hooks, fetch, serialize
 - `src/shell/` — header, theme toggle, user menu
 - `src/sections/workspace/` — split RSS / newsletter
-- `product-plan/` — handoff package (référence design)
+- `product-plan/` — handoff package (référence design d'origine)
 
 ## Persistance
 
-localStorage : `pokewatch:feeds`, `pokewatch:filters`, `pokewatch:newsletter-draft`, `pokewatch:onboarding`, `pokewatch:theme`, `pokewatch:ui-panel`. Reset via drawer paramètres.
+localStorage : `gazette:feeds`, `gazette:filters`, `gazette:newsletter-draft`, `gazette:setup`, `gazette:theme`, `gazette:ui-panel`. Reset via drawer paramètres.
 
 ## Docs
 

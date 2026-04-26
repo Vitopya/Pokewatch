@@ -36,7 +36,10 @@ export function AppShell({
   onLogoClick,
 }: AppShellProps) {
   return (
-    <div className="h-dvh max-h-dvh overflow-hidden flex flex-col bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans">
+    <div
+      className="h-dvh max-h-dvh w-full max-w-full overflow-hidden flex flex-col bg-bone text-ink dark:bg-night dark:text-night-text font-sans selection:bg-ink selection:text-bone"
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+    >
       <MainNav
         navigationItems={navigationItems}
         user={user}

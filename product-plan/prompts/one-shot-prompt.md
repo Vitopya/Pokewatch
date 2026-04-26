@@ -20,7 +20,7 @@ After reading these, also review:
 Review all the provided files, then ask me clarifying questions about:
 
 1. **My tech stack** — What framework, language, and tools I'm using, and any existing codebase conventions
-2. **Authentication & users** — How users should sign up, log in, and what permissions exist (PokeWatch is single-user local-first; do I want auth at all, or just localStorage?)
+2. **Authentication & users** — How users should sign up, log in, and what permissions exist (Gazette is single-user local-first; do I want auth at all, or just localStorage?)
 3. **Claude API integration** — How my Claude API key should be stored (localStorage vs server-side proxy), what model to use (default `claude-sonnet-4-6`), and whether to enable prompt caching
 4. **RSS fetching** — Will the browser fetch RSS directly (CORS may block), via a backend proxy, or via a third-party service?
 5. **Product requirements** — Anything in the specs or user flows that needs clarification

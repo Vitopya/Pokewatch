@@ -4,7 +4,7 @@ These test specs are **framework-agnostic**. Adapt them to your testing setup (J
 
 ## Overview
 
-Workspace is PokeWatch's main and only screen. It manages RSS feeds, runs filtered searches, lets the user select articles, generates a newsletter via Claude, and supports inline editing + clipboard copy. These tests cover onboarding, search/selection, generation states, inline editing, and clipboard export.
+Workspace is Gazette's main and only screen. It manages RSS feeds, runs filtered searches, lets the user select articles, generates a newsletter via Claude, and supports inline editing + clipboard copy. These tests cover onboarding, search/selection, generation states, inline editing, and clipboard export.
 
 ---
 
@@ -12,7 +12,7 @@ Workspace is PokeWatch's main and only screen. It manages RSS feeds, runs filter
 
 ### Flow 1: First-Launch Onboarding
 
-**Scenario:** A new user opens PokeWatch for the first time and walks through the 3-step onboarding.
+**Scenario:** A new user opens Gazette for the first time and walks through the 3-step onboarding.
 
 #### Success Path
 
@@ -402,17 +402,17 @@ import type {
 // Populated state (newsletter ready, articles fetched)
 const mockFeeds: RssFeed[] = [
   {
-    id: 'feed-pkmn-go-hub',
-    title: 'Pokémon GO Hub',
-    url: 'https://pokemongohub.net/feed/',
+    id: 'feed-source-a',
+    title: 'Source A',
+    url: 'https://example.com/feed-a.xml',
     isActive: true,
     accentColor: 'sky',
     lastSyncedAt: '2026-04-25T08:12:00Z',
   },
   {
-    id: 'feed-leekduck',
-    title: 'LeekDuck',
-    url: 'https://leekduck.com/feed/',
+    id: 'feed-source-b',
+    title: 'Source B',
+    url: 'https://example.com/feed-b/feed/',
     isActive: true,
     accentColor: 'rose',
     lastSyncedAt: '2026-04-25T08:12:00Z',
@@ -422,26 +422,26 @@ const mockFeeds: RssFeed[] = [
 const mockFilters: SearchFilters = {
   dateFrom: '2026-04-18',
   dateTo: '2026-04-25',
-  activeFeedIds: ['feed-pkmn-go-hub', 'feed-leekduck'],
+  activeFeedIds: ['feed-source-a', 'feed-source-b'],
   keyword: '',
   limit: 25,
 }
 
 const mockArticle: Article = {
   id: 'article-001',
-  feedId: 'feed-pkmn-go-hub',
-  title: 'Community Day de mai 2026 : Tepig devient Pokémon vedette',
+  feedId: 'feed-source-a',
+  title: 'Community Day de mai 2026 : Tepig devient sujet vedette',
   description: 'Niantic annonce officiellement Tepig.',
-  url: 'https://pokemongohub.net/post/news/tepig-cd-2026/',
+  url: 'https://topicgohub.net/post/news/tepig-cd-2026/',
   publishedAt: '2026-04-24T14:30:00Z',
   imageUrl: 'https://images.example/tepig.jpg',
-  sourceName: 'Pokémon GO Hub',
+  sourceName: 'Source A',
   isSelected: true,
 }
 
 const mockNewsletterReady: Newsletter = {
   id: 'newsletter-1',
-  title: 'PokeWatch — Hebdo du 25 avril 2026',
+  title: 'Gazette — Hebdo du 25 avril 2026',
   generatedAt: '2026-04-25T08:30:00Z',
   status: 'ready',
   format: 'markdown',
@@ -457,8 +457,8 @@ const mockNewsletterReady: Newsletter = {
           title: 'Community Day de mai',
           description: 'Tepig vedette.',
           imageUrl: 'https://images.example/tepig.jpg',
-          sourceUrl: 'https://pokemongohub.net/post/news/tepig-cd-2026/',
-          sourceName: 'Pokémon GO Hub',
+          sourceUrl: 'https://topicgohub.net/post/news/tepig-cd-2026/',
+          sourceName: 'Source A',
           bullets: ['10 mai 14h–17h', 'Bonus poussière x3'],
         },
       ],

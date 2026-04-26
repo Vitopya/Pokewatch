@@ -2,7 +2,7 @@
 
 ## Overview
 
-Workspace is PokeWatch's main and only screen. It combines RSS feed management, search filters, article selection, and newsletter generation/edition in a vertical split view (panels side-by-side, left/right, separated by a vertical divider).
+Workspace is Gazette's main and only screen. It combines RSS feed management, search filters, article selection, and newsletter generation/edition in a vertical split view (panels side-by-side, left/right, separated by a vertical divider).
 
 ## User Flows
 

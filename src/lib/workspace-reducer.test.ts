@@ -3,26 +3,35 @@ import { workspaceReducer, type WorkspaceState } from './workspace-reducer'
 import {
   buildEmptyNewsletter,
   buildInitialFilters,
-  buildInitialOnboarding,
+  buildInitialSetup,
   DEFAULT_FEEDS,
   INITIAL_UI,
 } from './initial-state'
-import type { Article, Newsletter } from '../sections/workspace/types'
+import type { Article, Newsletter, RssFeed } from '../sections/workspace/types'
+
+const seedFeed: RssFeed = {
+  id: 'feed-test',
+  title: 'Test Feed',
+  url: 'https://example.com/feed.xml',
+  isActive: true,
+  accentColor: 'sky',
+  lastSyncedAt: null,
+}
 
 function makeBaseState(): WorkspaceState {
   return {
-    feeds: [...DEFAULT_FEEDS],
-    filters: buildInitialFilters(),
+    feeds: [...DEFAULT_FEEDS, seedFeed],
+    filters: { ...buildInitialFilters(), activeFeedIds: [seedFeed.id] },
     articles: [],
     newsletter: buildEmptyNewsletter(),
-    onboarding: buildInitialOnboarding(),
+    setup: buildInitialSetup(),
     ui: { ...INITIAL_UI },
   }
 }
 
 const sampleArticle: Article = {
   id: 'article-1',
-  feedId: DEFAULT_FEEDS[0].id,
+  feedId: seedFeed.id,
   title: 'Test article',
   description: 'Description',
   url: 'https://example.com/a',
@@ -92,7 +101,7 @@ describe('workspaceReducer', () => {
     })
 
     it('removes a feed and cleans up filters and articles', () => {
-      const target = DEFAULT_FEEDS[0]
+      const target = seedFeed
       const state: WorkspaceState = {
         ...makeBaseState(),
         articles: [{ ...sampleArticle, feedId: target.id }],
@@ -104,7 +113,7 @@ describe('workspaceReducer', () => {
     })
 
     it('toggles feed active syncs filter membership', () => {
-      const target = DEFAULT_FEEDS[0]
+      const target = seedFeed
       const state = makeBaseState()
       const off = workspaceReducer(state, {
         type: 'feed/toggle-active',
@@ -215,24 +224,22 @@ describe('workspaceReducer', () => {
     })
   })
 
-  describe('onboarding', () => {
-    it('marks a step completed and advances currentStep', () => {
+  describe('setup', () => {
+    it('patches setup flags', () => {
       const state = makeBaseState()
       const next = workspaceReducer(state, {
-        type: 'onboarding/complete-step',
-        stepKey: 'api-key',
+        type: 'setup/patch',
+        patch: { splashSeen: true, tourSeen: true },
       })
-      expect(next.onboarding.steps.find((s) => s.key === 'api-key')?.completed).toBe(true)
-      expect(next.onboarding.completed).toBe(false)
-      expect(next.onboarding.currentStep).toBe(2)
+      expect(next.setup.splashSeen).toBe(true)
+      expect(next.setup.tourSeen).toBe(true)
+      expect(next.setup.wizardSeen).toBe(false)
     })
 
-    it('marks completed when all steps done', () => {
-      let state = makeBaseState()
-      for (const key of ['api-key', 'first-feed', 'first-search'] as const) {
-        state = workspaceReducer(state, { type: 'onboarding/complete-step', stepKey: key })
-      }
-      expect(state.onboarding.completed).toBe(true)
+    it('switches provider', () => {
+      const state = makeBaseState()
+      const next = workspaceReducer(state, { type: 'setup/set-provider', provider: 'anthropic' })
+      expect(next.setup.provider).toBe('anthropic')
     })
   })
 

@@ -26,7 +26,7 @@ The components are props-based — they accept data and fire callbacks. How you 
 
 ## Goal
 
-Set up the design tokens and application shell — the persistent chrome that wraps PokeWatch's single workspace screen.
+Set up the design tokens and application shell — the persistent chrome that wraps Gazette's single workspace screen.
 
 ## What to Implement
 
@@ -38,7 +38,7 @@ Configure your styling system with these tokens:
 - See `product-plan/design-system/tailwind-colors.md` for Tailwind palette mapping (`sky` primary, `rose` secondary, `zinc` neutral)
 - See `product-plan/design-system/fonts.md` for Google Fonts setup (Plus Jakarta Sans + JetBrains Mono)
 
-PokeWatch uses **Tailwind CSS v4** (no `tailwind.config.js`). Built-in Tailwind palettes are referenced directly: `sky-500`, `rose-500`, `zinc-100`, etc. If your project uses Tailwind v3 or another system, adapt accordingly.
+Gazette uses **Tailwind CSS v4** (no `tailwind.config.js`). Built-in Tailwind palettes are referenced directly: `sky-500`, `rose-500`, `zinc-100`, etc. If your project uses Tailwind v3 or another system, adapt accordingly.
 
 ### 2. Application Shell
 
@@ -52,11 +52,11 @@ Copy the shell components from `product-plan/shell/components/` to your project:
 
 **Wire Up Header Actions:**
 
-PokeWatch is a single-screen app. The shell does NOT render a sidebar or main navigation. Default `navigationItems` to an empty array. The header carries:
+Gazette is a single-screen app. The shell does NOT render a sidebar or main navigation. Default `navigationItems` to an empty array. The header carries:
 
 - **Logo (clickable)** — wire to a "back to default workspace state" callback
 - **Settings button** — opens your settings drawer/modal (feed CRUD, Claude API key, format prefs, reset localStorage)
-- **Theme toggle** — wire to your theme state. Persist preference in `localStorage` under key `pokewatch:theme`
+- **Theme toggle** — wire to your theme state. Persist preference in `localStorage` under key `gazette:theme`
 - **User menu** — pass a `user` prop with `name` (initials are computed) and optional `avatarUrl`. Wire `onLogout` to your "reset session" handler
 
 **Settings Drawer (out of scope for shell components):**
@@ -79,7 +79,7 @@ The shell exposes `onOpenSettings` as a callback. You implement the actual drawe
 - [ ] Tailwind palettes `sky`, `rose`, `zinc` are usable in components
 - [ ] AppShell renders with `h-dvh` and locks scroll to internal panels
 - [ ] Header logo, settings, theme toggle, and user menu are wired
-- [ ] Theme preference persists in `localStorage` key `pokewatch:theme`
+- [ ] Theme preference persists in `localStorage` key `gazette:theme`
 - [ ] Settings drawer opens when `onOpenSettings` fires (drawer content can be a stub initially)
 - [ ] Light/dark mode is functional across the shell
 - [ ] Shell is responsive (compact header < 768px, full header ≥ 768px)

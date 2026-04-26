@@ -30,13 +30,13 @@ export function MainNav({
         type="button"
         onClick={onLogoClick}
         className="flex items-center gap-2 cursor-pointer rounded-md px-1.5 py-1 -ml-1.5 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-        aria-label="PokeWatch — retour à l'accueil"
+        aria-label="Gazette — retour à l'accueil"
       >
         <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-sky-500 text-white shadow-sm">
           <Sparkles className="h-4 w-4" aria-hidden="true" />
         </span>
         <span className="hidden sm:inline font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-          PokeWatch
+          Gazette
         </span>
       </button>
 

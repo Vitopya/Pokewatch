@@ -1,4 +1,4 @@
-import { Settings, Sparkles } from 'lucide-react'
+import { Settings } from 'lucide-react'
 import type { AppShellUser, NavigationItem } from './AppShell'
 import { ThemeToggle } from './ThemeToggle'
 import { UserMenu } from './UserMenu'
@@ -14,6 +14,13 @@ export interface MainNavProps {
   onLogoClick?: () => void
 }
 
+const ISSUE_NUMBER = (() => {
+  const start = new Date('2026-01-01T00:00:00Z')
+  const now = new Date()
+  const days = Math.floor((now.getTime() - start.getTime()) / 86_400_000)
+  return String(days + 1).padStart(3, '0')
+})()
+
 export function MainNav({
   navigationItems = [],
   user,
@@ -25,33 +32,42 @@ export function MainNav({
   onLogoClick,
 }: MainNavProps) {
   return (
-    <header className="sticky top-0 z-30 h-12 md:h-14 flex items-center justify-between px-3 md:px-6 bg-white/90 dark:bg-zinc-900/90 backdrop-blur border-b border-zinc-200 dark:border-zinc-800">
+    <header
+      data-tour="main-nav"
+      className="relative z-30 h-11 md:h-12 shrink-0 flex items-center justify-between gap-2 sm:gap-3 px-3 md:px-5 bg-bone dark:bg-night border-b-2 border-ink dark:border-night-text"
+    >
       <button
         type="button"
         onClick={onLogoClick}
-        className="flex items-center gap-2 cursor-pointer rounded-md px-1.5 py-1 -ml-1.5 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-        aria-label="PokeWatch — retour à l'accueil"
+        className="group flex items-baseline gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion focus-visible:ring-offset-2 focus-visible:ring-offset-bone dark:focus-visible:ring-offset-night px-1 -ml-1 min-w-0"
+        aria-label="Gazette — accueil"
       >
-        <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-sky-500 text-white shadow-sm">
-          <Sparkles className="h-4 w-4" aria-hidden="true" />
+        <span
+          aria-hidden="true"
+          className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-vermillion text-paper text-[10px] font-display font-black ring-2 ring-ink dark:ring-night-text shrink-0"
+        >
+          G
         </span>
-        <span className="hidden sm:inline font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-          PokeWatch
+        <span className="font-display font-black tracking-tighter text-[20px] md:text-[22px] leading-none text-ink dark:text-night-text">
+          Gazette
+        </span>
+        <span className="hidden sm:inline font-mono text-[9px] uppercase tracking-[0.22em] text-vermillion -translate-y-0.5 shrink-0">
+          № {ISSUE_NUMBER}
         </span>
       </button>
 
       {navigationItems.length > 0 && (
-        <nav className="hidden md:flex items-center gap-1" aria-label="Navigation principale">
+        <nav className="hidden md:flex items-center gap-4" aria-label="Navigation principale">
           {navigationItems.map((item) => (
             <button
               key={item.href}
               type="button"
               onClick={() => onNavigate?.(item.href)}
               className={[
-                'cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                'cursor-pointer font-mono text-[11px] uppercase tracking-[0.18em] py-1 border-b-2 transition-colors',
                 item.isActive
-                  ? 'bg-sky-100 text-sky-900 dark:bg-sky-500/15 dark:text-sky-200'
-                  : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100',
+                  ? 'border-vermillion text-ink dark:text-night-text'
+                  : 'border-transparent text-ink-3 hover:text-ink dark:text-night-text-3 dark:hover:text-night-text',
               ].join(' ')}
               aria-current={item.isActive ? 'page' : undefined}
             >
@@ -61,15 +77,17 @@ export function MainNav({
         </nav>
       )}
 
-      <div className="flex items-center gap-1 md:gap-2">
+      <div className="flex items-center gap-1">
         <button
           type="button"
           onClick={onOpenSettings}
-          className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-md text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-          aria-label="Ouvrir paramètres"
+          data-tour="settings-button"
+          className="cursor-pointer inline-flex items-center gap-1.5 h-7 md:h-8 px-2 border border-ink dark:border-night-text text-ink dark:text-night-text font-mono text-[10px] uppercase tracking-[0.16em] hover:bg-ink hover:text-bone dark:hover:bg-night-text dark:hover:text-night transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
+          aria-label="Paramètres"
           title="Paramètres"
         >
-          <Settings className="h-4.5 w-4.5" aria-hidden="true" />
+          <Settings className="h-3 w-3" aria-hidden="true" strokeWidth={2.25} />
+          <span className="hidden md:inline">Réglages</span>
         </button>
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
         {user && <UserMenu user={user} onOpenSettings={onOpenSettings} onLogout={onLogout} />}

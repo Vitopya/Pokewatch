@@ -1,7 +1,6 @@
-﻿import { LayoutPanelLeft, ListChecks } from 'lucide-react'
+import { LayoutPanelLeft, ListChecks } from 'lucide-react'
 import type { ActivePanel, WorkspaceProps } from '../types'
 import { NewsletterPanel } from './NewsletterPanel'
-import { OnboardingCard } from './OnboardingCard'
 import { RssPanel } from './RssPanel'
 
 export function Workspace({
@@ -9,12 +8,11 @@ export function Workspace({
   filters,
   articles,
   newsletter,
-  onboarding,
   ui,
   onOpenSettings,
   onChangeActivePanel,
   onAddFeed: _onAddFeed,
-  onRemoveFeed: _onRemoveFeed,
+  onRemoveFeed,
   onToggleFeedActive,
   onUpdateFilters,
   onFetchArticles,
@@ -36,31 +34,17 @@ export function Workspace({
   onRemoveItemImage,
   onCopyMarkdown,
   onCopyHtml,
-  onCompleteOnboardingStep,
 }: WorkspaceProps) {
-  if (!onboarding.completed) {
-    return (
-      <div className="relative flex-1 min-h-0 flex items-center justify-center px-4 py-10 md:py-16 overflow-y-auto">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.08),transparent_60%)] dark:bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.12),transparent_60%)]"
-        />
-        <OnboardingCard
-          onboarding={onboarding}
-          onCompleteStep={onCompleteOnboardingStep}
-          onOpenSettings={onOpenSettings}
-        />
-      </div>
-    )
-  }
-
   const showRss = ui.activePanel === 'rss'
   const showNewsletter = ui.activePanel === 'newsletter'
 
   return (
     <div className="flex-1 min-h-0 flex flex-col">
-      <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[minmax(320px,40%)_1fr]">
-        <div className={`min-h-0 ${showRss ? 'flex' : 'hidden'} md:flex flex-col`}>
+      <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[minmax(320px,36%)_1fr]">
+        <div
+          data-tour="rss-panel"
+          className={`min-h-0 ${showRss ? 'flex' : 'hidden'} md:flex flex-col border-r-0 md:border-r-2 border-ink dark:border-night-text`}
+        >
           <RssPanel
             feeds={feeds}
             filters={filters}
@@ -70,6 +54,7 @@ export function Workspace({
             onOpenSettings={onOpenSettings}
             onUpdateFilters={onUpdateFilters}
             onToggleFeedActive={onToggleFeedActive}
+            onRemoveFeed={onRemoveFeed}
             onFetchArticles={onFetchArticles}
             onToggleArticleSelection={onToggleArticleSelection}
             onSelectAllArticles={onSelectAllArticles}
@@ -77,7 +62,10 @@ export function Workspace({
             onGenerateNewsletter={onGenerateNewsletter}
           />
         </div>
-        <div className={`min-h-0 ${showNewsletter ? 'flex' : 'hidden'} md:flex flex-col`}>
+        <div
+          data-tour="newsletter-panel"
+          className={`min-h-0 ${showNewsletter ? 'flex' : 'hidden'} md:flex flex-col`}
+        >
           <NewsletterPanel
             newsletter={newsletter}
             ui={ui}
@@ -110,34 +98,37 @@ interface MobilePanelToggleProps {
 
 function MobilePanelToggle({ activePanel, onChange }: MobilePanelToggleProps) {
   return (
-    <div className="md:hidden sticky bottom-0 z-20 border-t border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur p-2 flex items-center gap-1">
+    <div
+      className="md:hidden sticky bottom-0 z-20 shrink-0 border-t-2 border-ink dark:border-night-text bg-paper dark:bg-night-paper grid grid-cols-2"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
       <button
         type="button"
         onClick={() => onChange?.('rss')}
         className={[
-          'cursor-pointer flex-1 inline-flex items-center justify-center gap-1.5 rounded-md py-2 text-sm font-medium transition-colors',
+          'cursor-pointer inline-flex items-center justify-center gap-1.5 py-2.5 font-mono text-[10px] uppercase tracking-[0.18em] border-r-2 border-ink dark:border-night-text transition-colors',
           activePanel === 'rss'
-            ? 'bg-sky-500 text-white'
-            : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800',
+            ? 'bg-ink text-bone dark:bg-night-text dark:text-night'
+            : 'text-ink dark:text-night-text hover:bg-bone-2 dark:hover:bg-night-2',
         ].join(' ')}
         aria-pressed={activePanel === 'rss'}
       >
-        <ListChecks className="h-4 w-4" aria-hidden="true" />
+        <ListChecks className="h-3.5 w-3.5" aria-hidden="true" strokeWidth={2.25} />
         Sources
       </button>
       <button
         type="button"
         onClick={() => onChange?.('newsletter')}
         className={[
-          'cursor-pointer flex-1 inline-flex items-center justify-center gap-1.5 rounded-md py-2 text-sm font-medium transition-colors',
+          'cursor-pointer inline-flex items-center justify-center gap-1.5 py-2.5 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors',
           activePanel === 'newsletter'
-            ? 'bg-rose-500 text-white'
-            : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800',
+            ? 'bg-vermillion text-paper'
+            : 'text-ink dark:text-night-text hover:bg-bone-2 dark:hover:bg-night-2',
         ].join(' ')}
         aria-pressed={activePanel === 'newsletter'}
       >
-        <LayoutPanelLeft className="h-4 w-4" aria-hidden="true" />
-        Newsletter
+        <LayoutPanelLeft className="h-3.5 w-3.5" aria-hidden="true" strokeWidth={2.25} />
+        Édition
       </button>
     </div>
   )

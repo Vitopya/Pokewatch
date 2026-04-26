@@ -1,13 +1,13 @@
 import type {
   ActivePanel,
+  AiProvider,
   Article,
   Newsletter,
   NewsletterFormat,
   NewsletterStatus,
-  OnboardingState,
-  OnboardingStepKey,
   RssFeed,
   SearchFilters,
+  SetupState,
   WorkspaceUiState,
 } from '../sections/workspace/types'
 
@@ -16,7 +16,7 @@ export interface WorkspaceState {
   filters: SearchFilters
   articles: Article[]
   newsletter: Newsletter
-  onboarding: OnboardingState
+  setup: SetupState
   ui: WorkspaceUiState
 }
 
@@ -48,8 +48,8 @@ export type WorkspaceAction =
   | { type: 'ui/set-settings-open'; value: boolean }
   | { type: 'ui/set-active-panel'; panel: ActivePanel }
   | { type: 'ui/set-last-copy-format'; format: NewsletterFormat | null }
-  | { type: 'onboarding/complete-step'; stepKey: OnboardingStepKey }
-  | { type: 'onboarding/reset' }
+  | { type: 'setup/patch'; patch: Partial<SetupState> }
+  | { type: 'setup/set-provider'; provider: AiProvider }
   | { type: 'state/reset'; next: WorkspaceState }
 
 function mapItems(
@@ -277,26 +277,11 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
     case 'ui/set-last-copy-format':
       return { ...state, ui: { ...state.ui, lastCopyFormat: action.format } }
 
-    case 'onboarding/complete-step': {
-      const steps = state.onboarding.steps.map((s) =>
-        s.key === action.stepKey ? { ...s, completed: true } : s,
-      )
-      const completedCount = steps.filter((s) => s.completed).length
-      const completed = completedCount === steps.length
-      const currentStep = (Math.min(steps.length, completedCount + 1) as 1 | 2 | 3)
-      return {
-        ...state,
-        onboarding: {
-          ...state.onboarding,
-          steps,
-          completed,
-          currentStep,
-        },
-      }
-    }
+    case 'setup/patch':
+      return { ...state, setup: { ...state.setup, ...action.patch } }
 
-    case 'onboarding/reset':
-      return state
+    case 'setup/set-provider':
+      return { ...state, setup: { ...state.setup, provider: action.provider } }
 
     case 'state/reset':
       return action.next

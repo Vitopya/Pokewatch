@@ -1,6 +1,6 @@
-# PokeWatch — Design Handoff
+# Gazette — Design Handoff
 
-This folder contains everything needed to implement PokeWatch.
+This folder contains everything needed to implement Gazette.
 
 ## What's Included
 

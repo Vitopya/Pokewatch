@@ -2,7 +2,7 @@
 
 ## Color Choices
 
-- **Primary:** `sky` — Used for primary actions (Rechercher button), focus rings, key accents. Echoes Pokémon GO's signature blue.
+- **Primary:** `sky` — Used for primary actions (Rechercher button), focus rings, key accents. Echoes la thématique's signature blue.
 - **Secondary:** `rose` — Used for newsletter panel accent, destructive actions (delete, remove), CTA secondaire. Modernizes the Poké-red.
 - **Neutral:** `zinc` — Used for backgrounds, borders, text. Cool modern gray that complements the saturated primaries without warmth fight.
 
@@ -55,6 +55,6 @@
 
 ## Tailwind v4 Setup
 
-PokeWatch uses Tailwind CSS v4. There is no `tailwind.config.js`. Colors are referenced directly via Tailwind's built-in palettes (`sky-500`, `rose-500`, `zinc-100`, etc.).
+Gazette uses Tailwind CSS v4. There is no `tailwind.config.js`. Colors are referenced directly via Tailwind's built-in palettes (`sky-500`, `rose-500`, `zinc-100`, etc.).
 
 If your project uses an older Tailwind version, you may need to ensure these palettes are available (they are part of the default Tailwind theme).

@@ -26,7 +26,7 @@ The components are props-based — they accept data and fire callbacks. How you 
 
 ## Goal
 
-Implement the **Workspace** feature — PokeWatch's main and only screen, which combines RSS feed management, search filters, article selection, newsletter generation, inline editing, and clipboard export.
+Implement the **Workspace** feature — Gazette's main and only screen, which combines RSS feed management, search filters, article selection, newsletter generation, inline editing, and clipboard export.
 
 ## Overview
 
@@ -187,12 +187,12 @@ Implement `onCopyMarkdown` and `onCopyHtml` to:
 ### Persistence
 
 Store in localStorage:
-- `pokewatch:feeds` — RssFeed[]
-- `pokewatch:newsletter-draft` — Newsletter (last generated, with edits)
-- `pokewatch:filters` — last filter state
-- `pokewatch:onboarding` — OnboardingState
-- `pokewatch:api-key` — Claude API key (consider warning user about plain-text storage)
-- `pokewatch:theme` — 'light' | 'dark'
+- `gazette:feeds` — RssFeed[]
+- `gazette:newsletter-draft` — Newsletter (last generated, with edits)
+- `gazette:filters` — last filter state
+- `gazette:onboarding` — OnboardingState
+- `gazette:api-key` — Claude API key (consider warning user about plain-text storage)
+- `gazette:theme` — 'light' | 'dark'
 
 ## Testing
 

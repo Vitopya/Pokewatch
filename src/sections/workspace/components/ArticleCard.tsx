@@ -1,13 +1,13 @@
-﻿import { Check, ExternalLink } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import type { Article, RssFeed } from '../types'
 
-const ACCENT_DOT_CLASSES: Record<string, string> = {
-  sky: 'bg-sky-500',
-  rose: 'bg-rose-500',
+const ACCENT_BAR: Record<string, string> = {
+  sky: 'bg-sky-600',
+  rose: 'bg-rose-600',
   amber: 'bg-amber-500',
-  emerald: 'bg-emerald-500',
-  violet: 'bg-violet-500',
-  cyan: 'bg-cyan-500',
+  emerald: 'bg-emerald-600',
+  violet: 'bg-violet-600',
+  cyan: 'bg-cyan-600',
   orange: 'bg-orange-500',
   pink: 'bg-pink-500',
 }
@@ -17,12 +17,14 @@ function formatRelative(isoDate: string) {
   const then = new Date(isoDate)
   const diffMs = now.getTime() - then.getTime()
   const minutes = Math.round(diffMs / 60000)
-  if (minutes < 60) return `il y a ${Math.max(1, minutes)} min`
+  if (minutes < 60) return `T-${Math.max(1, minutes)}m`
   const hours = Math.round(minutes / 60)
-  if (hours < 24) return `il y a ${hours} h`
+  if (hours < 24) return `T-${hours}h`
   const days = Math.round(hours / 24)
-  if (days < 7) return `il y a ${days} j`
-  return then.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+  if (days < 7) return `T-${days}j`
+  return then
+    .toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+    .replace('/', '·')
 }
 
 export interface ArticleCardProps {
@@ -32,76 +34,86 @@ export interface ArticleCardProps {
 }
 
 export function ArticleCard({ article, feed, onToggleSelection }: ArticleCardProps) {
-  const accentDot = feed ? ACCENT_DOT_CLASSES[feed.accentColor] ?? 'bg-zinc-400' : 'bg-zinc-400'
+  const accentBar = feed ? ACCENT_BAR[feed.accentColor] ?? 'bg-ink' : 'bg-ink'
+  const isSelected = article.isSelected
 
   return (
-    <label
-      className={[
-        'group relative flex gap-3 rounded-lg border p-2.5 cursor-pointer transition-all',
-        article.isSelected
-          ? 'border-sky-300 bg-sky-50/40 dark:border-sky-500/40 dark:bg-sky-500/5'
-          : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700',
-      ].join(' ')}
-    >
-      <input
-        type="checkbox"
-        checked={article.isSelected}
-        onChange={(event) => onToggleSelection?.(event.target.checked)}
-        className="sr-only peer"
-      />
-      <span
-        aria-hidden="true"
+    <li className="[counter-increment:wire]">
+      <label
         className={[
-          'mt-1 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors',
-          article.isSelected
-            ? 'bg-sky-500 border-sky-500 text-white'
-            : 'border-zinc-300 dark:border-zinc-700 group-hover:border-zinc-400 dark:group-hover:border-zinc-600',
+          'group relative flex gap-3 cursor-pointer transition-all border-2',
+          isSelected
+            ? 'border-vermillion bg-paper dark:bg-night-paper shadow-[3px_3px_0_0_rgba(215,50,28,1)]'
+            : 'border-ink dark:border-night-text bg-paper dark:bg-night-paper hover:shadow-[3px_3px_0_0_rgba(14,14,12,1)] dark:hover:shadow-[3px_3px_0_0_rgba(232,226,212,0.5)] hover:-translate-x-[1px] hover:-translate-y-[1px]',
         ].join(' ')}
       >
-        {article.isSelected && <Check className="h-3 w-3" strokeWidth={3} />}
-      </span>
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={(event) => onToggleSelection?.(event.target.checked)}
+          className="sr-only peer"
+        />
 
-      {article.imageUrl && (
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-zinc-100 dark:bg-zinc-800">
-          <img
-            src={article.imageUrl}
-            alt=""
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-            onError={(event) => {
-              event.currentTarget.style.display = 'none'
-            }}
-          />
+        <span
+          aria-hidden="true"
+          className={`w-1.5 shrink-0 ${isSelected ? 'bg-vermillion' : accentBar}`}
+        />
+
+        <div className="flex flex-1 min-w-0 gap-3 p-2.5 pr-3">
+          {article.imageUrl && (
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden bg-bone-2 dark:bg-night-2 border border-ink dark:border-night-rule">
+              <img
+                src={article.imageUrl}
+                alt=""
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                onError={(event) => {
+                  event.currentTarget.style.display = 'none'
+                }}
+              />
+            </div>
+          )}
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.18em] text-ink-3 dark:text-night-text-3">
+              <span className="font-bold text-ink dark:text-night-text before:content-['№'] after:content-[counter(wire,decimal-leading-zero)]" />
+              <span className="truncate">{article.sourceName}</span>
+              <span className="text-rule dark:text-night-rule" aria-hidden="true">·</span>
+              <span className="text-vermillion shrink-0">{formatRelative(article.publishedAt)}</span>
+            </div>
+            <p
+              className={[
+                'mt-1 line-clamp-2 font-display text-[15px] leading-tight tracking-tight font-semibold',
+                isSelected ? 'text-ink dark:text-night-text' : 'text-ink dark:text-night-text',
+              ].join(' ')}
+            >
+              {article.title}
+            </p>
+          </div>
+
+          <span
+            aria-hidden="true"
+            className={[
+              'self-start mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center font-mono text-[10px] font-bold border-2 transition-colors',
+              isSelected
+                ? 'bg-vermillion border-vermillion text-paper'
+                : 'bg-paper dark:bg-night-paper border-ink dark:border-night-text text-paper dark:text-night-paper group-hover:bg-ink dark:group-hover:bg-night-text group-hover:text-paper dark:group-hover:text-night',
+            ].join(' ')}
+          >
+            {isSelected ? '✓' : '+'}
+          </span>
         </div>
-      )}
 
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
-          <span className={`h-1.5 w-1.5 rounded-full ${accentDot}`} aria-hidden="true" />
-          <span className="truncate text-[10px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-            {article.sourceName}
-          </span>
-          <span className="text-zinc-300 dark:text-zinc-700" aria-hidden="true">
-            ·
-          </span>
-          <span className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400">
-            {formatRelative(article.publishedAt)}
-          </span>
-        </div>
-        <p className="mt-0.5 line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-          {article.title}
-        </p>
-      </div>
-
-      <a
-        href={article.url}
-        target="_blank"
-        rel="noreferrer"
-        onClick={(event) => event.stopPropagation()}
-        className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-md text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:text-zinc-200 dark:hover:bg-zinc-800 transition-colors opacity-0 group-hover:opacity-100"
-        aria-label={`Ouvrir l'article ${article.title} dans un nouvel onglet`}
-      >
-        <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-      </a>
-    </label>
+        <a
+          href={article.url}
+          target="_blank"
+          rel="noreferrer"
+          onClick={(event) => event.stopPropagation()}
+          className="absolute right-1.5 bottom-1.5 inline-flex h-5 w-5 items-center justify-center text-ink-4 dark:text-night-text-3 hover:text-vermillion transition-colors opacity-0 group-hover:opacity-100"
+          aria-label={`Ouvrir l'article ${article.title} dans un nouvel onglet`}
+        >
+          <ExternalLink className="h-3 w-3" aria-hidden="true" strokeWidth={2.25} />
+        </a>
+      </label>
+    </li>
   )
 }

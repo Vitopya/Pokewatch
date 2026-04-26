@@ -1,4 +1,4 @@
-# PokeWatch — Complete Implementation Instructions
+# Gazette — Complete Implementation Instructions
 
 ---
 
@@ -35,7 +35,7 @@ Each section includes a `tests.md` file with UI behavior test specs. These are *
 
 ## Product Overview
 
-PokeWatch is a single-screen webapp that turns Pokémon RSS feeds into structured, illustrated, synthesized newsletters. The left panel manages RSS feeds and search filters; the right panel renders an AI-generated newsletter (grouped by event type), inline-editable, and copyable in markdown or HTML.
+Gazette is a single-screen webapp that turns sujet RSS feeds into structured, illustrated, synthesized newsletters. The left panel manages RSS feeds and search filters; the right panel renders an AI-generated newsletter (grouped by event type), inline-editable, and copyable in markdown or HTML.
 
 ### Sections
 
@@ -68,7 +68,7 @@ PokeWatch is a single-screen webapp that turns Pokémon RSS feeds into structure
 
 ## Goal
 
-Set up the design tokens and application shell — the persistent chrome that wraps PokeWatch's workspace screen.
+Set up the design tokens and application shell — the persistent chrome that wraps Gazette's workspace screen.
 
 ## What to Implement
 
@@ -78,7 +78,7 @@ Set up the design tokens and application shell — the persistent chrome that wr
 - See `product-plan/design-system/tailwind-colors.md` for Tailwind palette mapping
 - See `product-plan/design-system/fonts.md` for Google Fonts setup
 
-PokeWatch uses **Tailwind CSS v4** (no `tailwind.config.js`). Built-in palettes: `sky-500`, `rose-500`, `zinc-100`, etc.
+Gazette uses **Tailwind CSS v4** (no `tailwind.config.js`). Built-in palettes: `sky-500`, `rose-500`, `zinc-100`, etc.
 
 ### 2. Application Shell
 
@@ -89,11 +89,11 @@ Copy from `product-plan/shell/components/` to your project:
 - `ThemeToggle.tsx` — Light/dark toggle
 - `index.ts` — Barrel exports
 
-PokeWatch is single-screen. Default `navigationItems` to `[]`. Header carries: clickable logo, settings button, theme toggle, user menu.
+Gazette is single-screen. Default `navigationItems` to `[]`. Header carries: clickable logo, settings button, theme toggle, user menu.
 
 Implement a **settings drawer** (out of scope for shell components) that supports: feed CRUD, Claude API key input, default copy format, reset localStorage. The shell exposes `onOpenSettings` callback — wire to your drawer.
 
-Persist theme preference in `localStorage` key `pokewatch:theme`.
+Persist theme preference in `localStorage` key `gazette:theme`.
 
 ## Done When
 
@@ -111,7 +111,7 @@ Persist theme preference in `localStorage` key `pokewatch:theme`.
 
 ## Goal
 
-Implement the **Workspace** feature — PokeWatch's main and only screen.
+Implement the **Workspace** feature — Gazette's main and only screen.
 
 ## Overview
 
@@ -196,12 +196,12 @@ Implement `onCopyMarkdown` and `onCopyHtml`:
 
 ### Persistence
 localStorage keys:
-- `pokewatch:feeds`
-- `pokewatch:newsletter-draft`
-- `pokewatch:filters`
-- `pokewatch:onboarding`
-- `pokewatch:api-key` (warn user about plain-text storage)
-- `pokewatch:theme`
+- `gazette:feeds`
+- `gazette:newsletter-draft`
+- `gazette:filters`
+- `gazette:onboarding`
+- `gazette:api-key` (warn user about plain-text storage)
+- `gazette:theme`
 
 ## Testing
 

@@ -1,10 +1,10 @@
 const STORAGE_KEYS = {
-  feeds: 'pokewatch:feeds',
-  filters: 'pokewatch:filters',
-  newsletter: 'pokewatch:newsletter-draft',
-  onboarding: 'pokewatch:onboarding',
-  theme: 'pokewatch:theme',
-  uiPanel: 'pokewatch:ui-panel',
+  feeds: 'gazette:feeds',
+  filters: 'gazette:filters',
+  newsletter: 'gazette:newsletter-draft',
+  setup: 'gazette:setup',
+  theme: 'gazette:theme',
+  uiPanel: 'gazette:ui-panel',
 } as const
 
 export type StorageKey = keyof typeof STORAGE_KEYS
@@ -34,4 +34,14 @@ export function clearAllStorage(): void {
   for (const key of Object.values(STORAGE_KEYS)) {
     window.localStorage.removeItem(key)
   }
+  // also wipe legacy pokewatch:* keys
+  const legacy = [
+    'pokewatch:feeds',
+    'pokewatch:filters',
+    'pokewatch:newsletter-draft',
+    'pokewatch:onboarding',
+    'pokewatch:theme',
+    'pokewatch:ui-panel',
+  ]
+  for (const key of legacy) window.localStorage.removeItem(key)
 }

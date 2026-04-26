@@ -116,7 +116,7 @@ async function fetchOgImage(articleUrl: string): Promise<string | null> {
     const timeoutId = setTimeout(() => controller.abort(), 5000)
     const response = await fetch(articleUrl, {
       headers: {
-        'User-Agent': 'PokeWatch/0.1 (+https://github.com/Vitopya/Pokewatch)',
+        'User-Agent': 'Gazette/1.0',
         Accept: 'text/html,application/xhtml+xml',
       },
       signal: controller.signal,
@@ -180,7 +180,7 @@ export default async function handler(
   try {
     const upstream = await fetch(feedUrl, {
       headers: {
-        'User-Agent': 'PokeWatch/0.1 (+https://github.com/Vitopya/Pokewatch)',
+        'User-Agent': 'Gazette/1.0',
         Accept: 'application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.8',
       },
     })

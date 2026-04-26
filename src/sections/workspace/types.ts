@@ -75,19 +75,17 @@ export interface Newsletter {
   sections: NewsletterSection[]
 }
 
-export type OnboardingStepKey = 'api-key' | 'first-feed' | 'first-search'
+export type AiProvider = 'gemini' | 'anthropic' | 'openai' | 'custom'
 
-export interface OnboardingStep {
-  key: OnboardingStepKey
-  title: string
-  description: string
-  completed: boolean
-}
-
-export interface OnboardingState {
-  currentStep: 1 | 2 | 3
-  completed: boolean
-  steps: OnboardingStep[]
+export interface SetupState {
+  /** Splashscreen has been displayed at least once. */
+  splashSeen: boolean
+  /** Guided app tour has been completed (or skipped). */
+  tourSeen: boolean
+  /** First-launch wizard (provider + initial feeds) has been completed. */
+  wizardSeen: boolean
+  /** Currently selected AI provider for newsletter generation. */
+  provider: AiProvider
 }
 
 export type ActivePanel = 'rss' | 'newsletter'
@@ -105,7 +103,6 @@ export interface WorkspaceProps {
   filters: SearchFilters
   articles: Article[]
   newsletter: Newsletter
-  onboarding: OnboardingState
   ui: WorkspaceUiState
 
   /** Open the settings drawer (feed CRUD, API key, format prefs). */
@@ -167,7 +164,4 @@ export interface WorkspaceProps {
   onCopyMarkdown?: () => void
   /** Copy the newsletter to clipboard in HTML rich format. */
   onCopyHtml?: () => void
-
-  /** Mark an onboarding step as completed. */
-  onCompleteOnboardingStep?: (stepKey: OnboardingStepKey) => void
 }

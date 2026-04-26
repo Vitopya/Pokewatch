@@ -11,14 +11,14 @@ export function ThemeToggle({ theme = 'light', onToggle }: ThemeToggleProps) {
     <button
       type="button"
       onClick={onToggle}
-      className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-md text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-      aria-label={isDark ? 'Passer en mode clair' : 'Passer en mode sombre'}
-      title={isDark ? 'Mode clair' : 'Mode sombre'}
+      className="cursor-pointer inline-flex h-7 w-7 md:h-8 md:w-8 items-center justify-center border border-ink dark:border-night-text text-ink dark:text-night-text hover:bg-ink hover:text-bone dark:hover:bg-night-text dark:hover:text-night transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
+      aria-label={isDark ? 'Mode jour' : 'Mode nuit'}
+      title={isDark ? 'Mode jour' : 'Mode nuit'}
     >
       {isDark ? (
-        <Sun className="h-4.5 w-4.5" aria-hidden="true" />
+        <Sun className="h-3 w-3 md:h-3.5 md:w-3.5" aria-hidden="true" strokeWidth={2.5} />
       ) : (
-        <Moon className="h-4.5 w-4.5" aria-hidden="true" />
+        <Moon className="h-3 w-3 md:h-3.5 md:w-3.5" aria-hidden="true" strokeWidth={2.5} />
       )}
     </button>
   )

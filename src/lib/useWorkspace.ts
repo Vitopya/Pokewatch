@@ -2,7 +2,7 @@ import { useEffect, useReducer, useRef } from 'react'
 import {
   buildEmptyNewsletter,
   buildInitialFilters,
-  buildInitialOnboarding,
+  buildInitialSetup,
   DEFAULT_FEEDS,
   INITIAL_ARTICLES,
   INITIAL_UI,
@@ -12,9 +12,9 @@ import { workspaceReducer, type WorkspaceState } from './workspace-reducer'
 import type {
   ActivePanel,
   Newsletter,
-  OnboardingState,
   RssFeed,
   SearchFilters,
+  SetupState,
 } from '../sections/workspace/types'
 
 function buildInitialState(): WorkspaceState {
@@ -23,7 +23,7 @@ function buildInitialState(): WorkspaceState {
     filters: readStorage<SearchFilters>('filters') ?? buildInitialFilters(),
     articles: INITIAL_ARTICLES,
     newsletter: readStorage<Newsletter>('newsletter') ?? buildEmptyNewsletter(),
-    onboarding: readStorage<OnboardingState>('onboarding') ?? buildInitialOnboarding(),
+    setup: { ...buildInitialSetup(), ...(readStorage<SetupState>('setup') ?? {}) },
     ui: {
       ...INITIAL_UI,
       activePanel: readStorage<ActivePanel>('uiPanel') ?? INITIAL_UI.activePanel,
@@ -54,8 +54,8 @@ export function useWorkspace() {
   }, [state.newsletter])
 
   useEffect(() => {
-    writeStorage('onboarding', state.onboarding)
-  }, [state.onboarding])
+    writeStorage('setup', state.setup)
+  }, [state.setup])
 
   useEffect(() => {
     writeStorage('uiPanel', state.ui.activePanel)

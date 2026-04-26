@@ -1,10 +1,12 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { ImageOff, ImagePlus, Plus, X } from 'lucide-react'
 import type { NewsletterItem } from '../types'
 import { RichTextEditor } from '../../../components/RichTextEditor'
 
 export interface NewsletterItemCardProps {
   item: NewsletterItem
+  index?: number
+  isLead?: boolean
   onEditTitle?: (title: string) => void
   onEditDescription?: (description: string) => void
   onEditBullet?: (bulletIndex: number, value: string) => void
@@ -16,6 +18,8 @@ export interface NewsletterItemCardProps {
 
 export function NewsletterItemCard({
   item,
+  index = 0,
+  isLead = false,
   onEditTitle,
   onEditDescription,
   onEditBullet,
@@ -35,9 +39,21 @@ export function NewsletterItemCard({
   }
 
   return (
-    <article className="group relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 transition-shadow hover:shadow-sm">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative h-32 sm:h-24 sm:w-24 shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+    <article
+      className={[
+        'group relative bg-paper dark:bg-night-paper border-2 border-ink dark:border-night-text transition-all',
+        'hover:shadow-[4px_4px_0_0_rgba(14,14,12,1)] dark:hover:shadow-[4px_4px_0_0_rgba(232,226,212,0.4)] hover:-translate-x-[1px] hover:-translate-y-[1px]',
+      ].join(' ')}
+    >
+      <div className={`flex flex-col ${isLead ? 'md:flex-col' : 'md:flex-row'} gap-0`}>
+        <div
+          className={[
+            'relative shrink-0 overflow-hidden bg-bone-2 dark:bg-night-2 border-ink dark:border-night-text',
+            isLead
+              ? 'h-40 md:h-52 w-full border-b-2'
+              : 'h-32 md:h-auto md:w-36 border-b-2 md:border-b-0 md:border-r-2',
+          ].join(' ')}
+        >
           {item.imageUrl ? (
             <img
               src={item.imageUrl}
@@ -48,26 +64,29 @@ export function NewsletterItemCard({
               }}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-zinc-400 dark:text-zinc-600">
-              <ImageOff className="h-6 w-6" aria-hidden="true" />
+            <div className="flex h-full w-full items-center justify-center text-ink-4 dark:text-night-text-3">
+              <ImageOff className="h-6 w-6" aria-hidden="true" strokeWidth={1.5} />
             </div>
           )}
-          <div className="absolute inset-x-1 bottom-1 flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-1.5 left-1.5 inline-flex items-center px-1.5 py-0.5 bg-paper dark:bg-night-paper border border-ink dark:border-night-text font-mono text-[9px] uppercase tracking-[0.16em] text-ink dark:text-night-text">
+            {isLead ? 'À la une' : `№${String(index + 1).padStart(2, '0')}`}
+          </div>
+          <div className="absolute bottom-1.5 right-1.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               type="button"
               onClick={() => setShowImageMenu((prev) => !prev)}
-              className="cursor-pointer inline-flex h-6 w-6 items-center justify-center rounded-md bg-zinc-900/80 text-white text-xs hover:bg-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+              className="cursor-pointer inline-flex h-6 w-6 items-center justify-center bg-ink text-paper border border-ink hover:bg-vermillion hover:border-vermillion focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
               aria-label="Options de l'image"
             >
-              <ImagePlus className="h-3.5 w-3.5" aria-hidden="true" />
+              <ImagePlus className="h-3 w-3" aria-hidden="true" strokeWidth={2.25} />
             </button>
           </div>
           {showImageMenu && (
-            <div className="absolute bottom-8 right-1 z-10 rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-lg overflow-hidden">
+            <div className="absolute bottom-9 right-1.5 z-10 border-2 border-ink dark:border-night-text bg-paper dark:bg-night-paper shadow-[3px_3px_0_0_rgba(14,14,12,1)] overflow-hidden">
               <button
                 type="button"
                 onClick={handleReplaceImage}
-                className="cursor-pointer block w-full px-3 py-1.5 text-left text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                className="cursor-pointer block w-full px-3 py-1.5 text-left font-mono text-[10px] uppercase tracking-[0.16em] text-ink hover:bg-ink hover:text-paper dark:text-night-text dark:hover:bg-night-text dark:hover:text-night transition-colors"
               >
                 Remplacer
               </button>
@@ -78,7 +97,7 @@ export function NewsletterItemCard({
                     setShowImageMenu(false)
                     onRemoveImage?.()
                   }}
-                  className="cursor-pointer block w-full px-3 py-1.5 text-left text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10"
+                  className="cursor-pointer block w-full px-3 py-1.5 text-left font-mono text-[10px] uppercase tracking-[0.16em] text-vermillion hover:bg-vermillion hover:text-paper border-t border-ink dark:border-night-text transition-colors"
                 >
                   Retirer
                 </button>
@@ -87,7 +106,13 @@ export function NewsletterItemCard({
           )}
         </div>
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 p-4 md:p-5">
+          <div className="flex items-center gap-2 mb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-3 dark:text-night-text-3">
+            <span className="font-bold text-vermillion">№{String(index + 1).padStart(2, '0')}</span>
+            <span className="h-px flex-1 bg-rule dark:bg-night-rule" aria-hidden="true" />
+            <span className="truncate">Source · {item.sourceName}</span>
+          </div>
+
           <input
             type="text"
             defaultValue={item.title}
@@ -95,40 +120,50 @@ export function NewsletterItemCard({
               const next = event.currentTarget.value.trim()
               if (next && next !== item.title) onEditTitle?.(next)
             }}
-            className="w-full bg-transparent text-base font-bold tracking-tight text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900 rounded-sm px-1 -mx-1"
+            className={[
+              'w-full bg-transparent font-display font-bold tracking-tight leading-tight text-ink dark:text-night-text focus:outline-none focus:ring-2 focus:ring-vermillion focus:ring-offset-2 focus:ring-offset-paper dark:focus:ring-offset-night-paper px-1 -mx-1',
+              isLead ? 'text-xl md:text-2xl' : 'text-lg md:text-xl',
+            ].join(' ')}
             aria-label="Titre de l'item"
           />
-          <div className="mt-1 -mx-1 rounded-sm px-1 focus-within:ring-2 focus-within:ring-sky-500 focus-within:ring-offset-2 focus-within:ring-offset-white dark:focus-within:ring-offset-zinc-900">
+
+          <div className="mt-2 -mx-1 rounded-sm px-1 focus-within:ring-2 focus-within:ring-vermillion focus-within:ring-offset-2 focus-within:ring-offset-paper dark:focus-within:ring-offset-night-paper">
             <RichTextEditor
               defaultText={item.description}
               onSave={(next) => onEditDescription?.(next)}
-              placeholder="Décris l'événement…"
+              placeholder="Décris le sujet…"
               ariaLabel="Description de l'item"
-              className="text-sm text-zinc-600 dark:text-zinc-300 min-h-[1.5rem]"
+              className={[
+                'text-[14px] leading-[1.5] text-ink-2 dark:text-night-text-2 min-h-[1.25rem]',
+                isLead ? 'drop-cap font-display' : '',
+              ].join(' ')}
             />
           </div>
 
-          <ul className="mt-2 space-y-1">
-            {item.bullets.map((bullet, index) => (
-              <li key={index} className="group/bullet flex items-start gap-2">
-                <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-sky-500" aria-hidden="true" />
-                <div className="flex-1 -mx-1 rounded-sm px-1 focus-within:ring-2 focus-within:ring-sky-500 focus-within:ring-offset-2 focus-within:ring-offset-white dark:focus-within:ring-offset-zinc-900">
+          <ul className="mt-3 space-y-1 border-l-2 border-ink dark:border-night-text pl-3">
+            {item.bullets.map((bullet, bulletIndex) => (
+              <li key={bulletIndex} className="group/bullet flex items-start gap-2">
+                <span
+                  aria-hidden="true"
+                  className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 bg-vermillion"
+                />
+                <div className="flex-1 -mx-1 rounded-sm px-1 focus-within:ring-2 focus-within:ring-vermillion focus-within:ring-offset-2 focus-within:ring-offset-paper dark:focus-within:ring-offset-night-paper">
                   <RichTextEditor
                     defaultText={bullet}
-                    onSave={(next) => onEditBullet?.(index, next)}
+                    onSave={(next) => onEditBullet?.(bulletIndex, next)}
                     placeholder="Détail clé…"
-                    ariaLabel={`Bullet ${index + 1}`}
-                    className="text-sm text-zinc-700 dark:text-zinc-200"
+                    ariaLabel={`Bullet ${bulletIndex + 1}`}
+                    className="text-sm text-ink-2 dark:text-night-text-2"
                     singleLine
                   />
                 </div>
                 <button
                   type="button"
-                  onClick={() => onRemoveBullet?.(index)}
-                  className="cursor-pointer inline-flex h-5 w-5 items-center justify-center rounded text-zinc-300 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 dark:text-zinc-600 dark:hover:text-rose-400 transition-colors opacity-0 group-hover/bullet:opacity-100"
-                  aria-label={`Supprimer bullet ${index + 1}`}
+                  onClick={() => onRemoveBullet?.(bulletIndex)}
+                  className="cursor-pointer inline-flex h-4 w-4 items-center justify-center text-ink-4 hover:bg-vermillion hover:text-paper dark:text-night-text-3 transition-colors opacity-0 group-hover/bullet:opacity-100"
+                  aria-label={`Supprimer bullet ${bulletIndex + 1}`}
                 >
-                  <X className="h-3 w-3" aria-hidden="true" />
+                  <X className="h-3 w-3" aria-hidden="true" strokeWidth={2.5} />
                 </button>
               </li>
             ))}
@@ -136,21 +171,21 @@ export function NewsletterItemCard({
               <button
                 type="button"
                 onClick={onAddBullet}
-                className="cursor-pointer inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-sky-600 dark:text-zinc-500 dark:hover:text-sky-400 transition-colors"
+                className="cursor-pointer inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-3 hover:text-vermillion dark:text-night-text-3 dark:hover:text-vermillion transition-colors"
               >
-                <Plus className="h-3 w-3" aria-hidden="true" />
-                Ajouter un point
+                <Plus className="h-3 w-3" aria-hidden="true" strokeWidth={2.5} />
+                Ajouter
               </button>
             </li>
           </ul>
 
-          <div className="mt-3 flex items-center gap-2 text-[11px] font-mono text-zinc-400 dark:text-zinc-500">
-            <span>Source :</span>
+          <div className="mt-3 pt-2 border-t border-rule dark:border-night-rule flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-4 dark:text-night-text-3">
+            <span>↪ Lire</span>
             <a
               href={item.sourceUrl}
               target="_blank"
               rel="noreferrer"
-              className="underline-offset-2 hover:underline hover:text-sky-600 dark:hover:text-sky-400 truncate"
+              className="text-ink dark:text-night-text underline-offset-4 underline decoration-vermillion decoration-2 hover:text-vermillion truncate"
             >
               {item.sourceName}
             </a>
