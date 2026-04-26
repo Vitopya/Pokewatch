@@ -1,7 +1,30 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Compass, Plus, RotateCcw, Sparkles, Trash2, Wifi, WifiOff, X } from 'lucide-react'
+import { ArrowRight, Compass, KeyRound, Plus, RotateCcw, Sparkles, Trash2, Wifi, WifiOff, X } from 'lucide-react'
 import type { AiProvider, FeedAccentColor, RssFeed } from '../sections/workspace/types'
+
+const PROVIDER_META: Record<AiProvider, { envVar: string; link: string; hint: string }> = {
+  gemini: {
+    envVar: 'GEMINI_API_KEY',
+    link: 'https://aistudio.google.com/apikey',
+    hint: 'Modèle par défaut : gemini-2.5-flash. Free tier généreux.',
+  },
+  anthropic: {
+    envVar: 'ANTHROPIC_API_KEY',
+    link: 'https://console.anthropic.com/settings/keys',
+    hint: 'Compatible Claude 4.x. Excellent pour la rédaction longue.',
+  },
+  openai: {
+    envVar: 'OPENAI_API_KEY',
+    link: 'https://platform.openai.com/api-keys',
+    hint: 'GPT-4 / GPT-4o. Demande une carte bancaire à la création.',
+  },
+  custom: {
+    envVar: 'CUSTOM_API_KEY',
+    link: '',
+    hint: 'Endpoint compatible OpenAI à configurer côté serveur.',
+  },
+}
 
 const ACCENT_OPTIONS: Array<{ value: FeedAccentColor; className: string }> = [
   { value: 'sky', className: 'bg-sky-600' },
@@ -181,25 +204,38 @@ export function SettingsDrawer({
             <div className="mt-2 grid grid-cols-2 gap-1.5">
               {(Object.keys(PROVIDER_LABELS) as AiProvider[]).map((id) => {
                 const selected = provider === id
+                const available = id === 'gemini'
                 return (
                   <button
                     key={id}
                     type="button"
-                    onClick={() => onProviderChange?.(id)}
+                    onClick={() => available && onProviderChange?.(id)}
+                    disabled={!available}
+                    title={available ? undefined : 'Bientôt disponible — backend Gemini uniquement pour l\'instant.'}
                     className={[
-                      'cursor-pointer inline-flex items-center justify-center gap-1.5 border-2 px-2 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-colors',
+                      'inline-flex items-center justify-center gap-1.5 border-2 px-2 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-colors relative',
+                      available ? 'cursor-pointer' : 'cursor-not-allowed opacity-50',
                       selected
                         ? 'bg-vermillion text-paper border-ink dark:border-night-text'
-                        : 'bg-paper dark:bg-night text-ink dark:text-night-text border-ink dark:border-night-text hover:bg-bone-2 dark:hover:bg-night-2',
+                        : 'bg-paper dark:bg-night text-ink dark:text-night-text border-ink dark:border-night-text ' + (available ? 'hover:bg-bone-2 dark:hover:bg-night-2' : ''),
                     ].join(' ')}
                     aria-pressed={selected}
+                    aria-disabled={!available}
                   >
                     <Sparkles className="h-3 w-3" aria-hidden="true" strokeWidth={2.5} />
                     {PROVIDER_LABELS[id]}
+                    {!available && (
+                      <span className="ml-0.5 font-mono text-[8px] tracking-[0.14em] text-ink-4 dark:text-night-text-3">
+                        · Bientôt
+                      </span>
+                    )}
                   </button>
                 )
               })}
             </div>
+            <p className="mt-1.5 text-[11px] text-ink-3 dark:text-night-text-3 italic">
+              Pour l'instant, seul Google Gemini est branché. Les autres moteurs arrivent bientôt.
+            </p>
 
             <div className="mt-3 border-2 border-ink dark:border-night-text bg-paper dark:bg-night p-3 flex items-center gap-3">
               {healthStatus === 'ok' ? (
@@ -239,10 +275,41 @@ export function SettingsDrawer({
             </div>
             {healthStatus === 'missing-key' && (
               <p className="mt-2 text-xs text-vermillion">
-                Aucune clé API détectée côté serveur. Ajoute la variable d'environnement attendue (ex.{' '}
-                <code className="font-mono bg-bone-2 dark:bg-night-2 px-1">GEMINI_API_KEY</code>) puis clique <strong>Tester</strong>.
+                Aucune clé API détectée côté serveur pour <code className="font-mono bg-bone-2 dark:bg-night-2 px-1">{PROVIDER_META[provider].envVar}</code>. Configure-la (voir ci-dessous) puis clique <strong>Tester</strong>.
               </p>
             )}
+
+            <div className="mt-3 border-2 border-ink dark:border-night-text bg-bone dark:bg-night p-3">
+              <h4 className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-vermillion">
+                <KeyRound className="h-3 w-3" aria-hidden="true" strokeWidth={2.5} />
+                Où est la clé API ?
+              </h4>
+              <p className="mt-1.5 text-xs text-ink-2 dark:text-night-text-2 leading-snug">
+                Pour ta sécurité, la clé n'est <strong>jamais saisie dans le navigateur</strong>. Elle est lue côté serveur via la variable d'environnement{' '}
+                <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/40 dark:border-night-text/40">
+                  {PROVIDER_META[provider].envVar}
+                </code>
+                . Configure-la dans ton fichier{' '}
+                <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/40 dark:border-night-text/40">.env</code>
+                {' '}local ou via{' '}
+                <code className="font-mono bg-paper dark:bg-night-paper px-1 border border-ink/40 dark:border-night-text/40">vercel env add</code>
+                {' '}en production, puis recharge la page.
+              </p>
+              <p className="mt-1.5 text-xs text-ink-3 dark:text-night-text-3 italic leading-snug">
+                {PROVIDER_META[provider].hint}
+              </p>
+              {PROVIDER_META[provider].link && (
+                <a
+                  href={PROVIDER_META[provider].link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.18em] text-vermillion underline underline-offset-4 hover:text-vermillion-2"
+                >
+                  Obtenir une clé {PROVIDER_LABELS[provider]}
+                  <ArrowRight className="h-3 w-3" aria-hidden="true" strokeWidth={2.5} />
+                </a>
+              )}
+            </div>
           </section>
 
           <section>

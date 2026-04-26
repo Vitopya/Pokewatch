@@ -229,12 +229,14 @@ export default function App() {
 
   function handleReplayTour() {
     setSettingsOpen(false)
-    setShowTour(true)
+    // Defer so the drawer fully unmounts before the tour mounts
+    // (avoids dialog focus-scope and scroll-lock conflicts)
+    window.setTimeout(() => setShowTour(true), 50)
   }
 
   function handleReopenWizard() {
     setSettingsOpen(false)
-    setShowWizard(true)
+    window.setTimeout(() => setShowWizard(true), 50)
   }
 
   return (
