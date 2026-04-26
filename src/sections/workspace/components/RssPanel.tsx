@@ -1,4 +1,4 @@
-import { Loader2, Settings2, Telescope } from 'lucide-react'
+import { Loader2, Telescope } from 'lucide-react'
 import type { Article, RssFeed, SearchFilters } from '../types'
 import { ArticleCard } from './ArticleCard'
 import { FilterControls } from './FilterControls'
@@ -57,14 +57,9 @@ export function RssPanel({
             Dépêches
           </h2>
         </div>
-        <button
-          type="button"
-          onClick={onOpenSettings}
-          className="cursor-pointer inline-flex items-center gap-1.5 border border-ink dark:border-night-text bg-bone dark:bg-night px-2 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink dark:text-night-text hover:bg-ink hover:text-bone dark:hover:bg-night-text dark:hover:text-night transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion shrink-0"
-        >
-          <Settings2 className="h-3 w-3" aria-hidden="true" strokeWidth={2.25} />
-          Gérer
-        </button>
+        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-4 dark:text-night-text-3 shrink-0">
+          {String(feeds.length).padStart(2, '0')} flux
+        </span>
       </header>
 
       <div
@@ -154,8 +149,17 @@ export function RssPanel({
               <p className="mt-1 text-xs text-ink-3 dark:text-night-text-3">
                 {hasFeeds
                   ? 'Lance la recherche pour rapatrier les derniers articles.'
-                  : 'Ouvre les réglages pour ajouter ton premier flux RSS.'}
+                  : 'Ajoute un premier flux RSS depuis les Réglages.'}
               </p>
+              {!hasFeeds && (
+                <button
+                  type="button"
+                  onClick={onOpenSettings}
+                  className="cursor-pointer mt-3 inline-flex items-center gap-1.5 border-2 border-ink dark:border-night-text bg-paper dark:bg-night-paper px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ink dark:text-night-text hover:bg-vermillion hover:border-vermillion hover:text-paper transition-colors"
+                >
+                  Ouvrir les Réglages
+                </button>
+              )}
             </div>
           </div>
         )}

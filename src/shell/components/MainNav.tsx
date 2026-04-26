@@ -1,7 +1,6 @@
 import { Settings } from 'lucide-react'
 import type { AppShellUser, NavigationItem } from './AppShell'
 import { ThemeToggle } from './ThemeToggle'
-import { UserMenu } from './UserMenu'
 
 export interface MainNavProps {
   navigationItems?: NavigationItem[]
@@ -23,10 +22,8 @@ const ISSUE_NUMBER = (() => {
 
 export function MainNav({
   navigationItems = [],
-  user,
   theme = 'light',
   onNavigate,
-  onLogout,
   onOpenSettings,
   onToggleTheme,
   onLogoClick,
@@ -77,20 +74,19 @@ export function MainNav({
         </nav>
       )}
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5">
         <button
           type="button"
           onClick={onOpenSettings}
           data-tour="settings-button"
-          className="cursor-pointer inline-flex items-center gap-1.5 h-7 md:h-8 px-2 border border-ink dark:border-night-text text-ink dark:text-night-text font-mono text-[10px] uppercase tracking-[0.16em] hover:bg-ink hover:text-bone dark:hover:bg-night-text dark:hover:text-night transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
-          aria-label="Paramètres"
-          title="Paramètres"
+          className="cursor-pointer inline-flex items-center gap-1.5 h-7 md:h-8 px-2.5 border-2 border-ink dark:border-night-text text-ink dark:text-night-text font-mono text-[10px] uppercase tracking-[0.18em] hover:bg-ink hover:text-bone dark:hover:bg-night-text dark:hover:text-night transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-vermillion"
+          aria-label="Ouvrir les réglages"
+          title="Réglages"
         >
           <Settings className="h-3 w-3" aria-hidden="true" strokeWidth={2.25} />
           <span className="hidden md:inline">Réglages</span>
         </button>
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
-        {user && <UserMenu user={user} onOpenSettings={onOpenSettings} onLogout={onLogout} />}
       </div>
     </header>
   )

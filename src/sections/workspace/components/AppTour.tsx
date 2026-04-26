@@ -16,7 +16,7 @@ export const DEFAULT_TOUR_STEPS: TourStep[] = [
     target: 'main-nav',
     placement: 'bottom',
     title: 'Bienvenue dans Gazette',
-    body: "L'en-tête te suit partout : logo, réglages, thème, profil. Le numéro d'édition se met à jour chaque jour.",
+    body: "L'en-tête te suit partout : logo, réglages et thème clair/sombre. Le numéro d'édition se met à jour chaque jour.",
   },
   {
     target: 'rss-panel',
@@ -169,21 +169,53 @@ export function AppTour({ steps = DEFAULT_TOUR_STEPS, onClose, onComplete }: App
     return { position: 'fixed' as const, top, left, width: cardWidth, maxWidth: 'calc(100vw - 24px)' }
   })()
 
+  // 4 dimming rectangles around spotlight, leaving spotlight area clear of blur/dim.
+  const vw = typeof window !== 'undefined' ? window.innerWidth : 0
+  const dimClass =
+    'absolute bg-ink/75 dark:bg-black/80 backdrop-blur-sm transition-all duration-150'
+
   return (
     <div className="fixed inset-0 z-[55] pointer-events-auto" role="dialog" aria-modal="true" aria-label="Visite guidée">
-      <div className="absolute inset-0 bg-ink/85 dark:bg-black/85 backdrop-blur-sm" onClick={onClose} />
-
-      {spotlight && (
-        <div
-          aria-hidden="true"
-          className="absolute pointer-events-none border-2 border-vermillion shadow-[0_0_0_9999px_rgba(0,0,0,0.55)] dark:shadow-[0_0_0_9999px_rgba(0,0,0,0.7)] transition-all duration-200"
-          style={{
-            top: spotlight.top,
-            left: spotlight.left,
-            width: spotlight.width,
-            height: spotlight.height,
-          }}
-        />
+      {spotlight ? (
+        <>
+          <div
+            className={dimClass}
+            onClick={onClose}
+            style={{ top: 0, left: 0, right: 0, height: spotlight.top }}
+          />
+          <div
+            className={dimClass}
+            onClick={onClose}
+            style={{ top: spotlight.top + spotlight.height, left: 0, right: 0, bottom: 0 }}
+          />
+          <div
+            className={dimClass}
+            onClick={onClose}
+            style={{ top: spotlight.top, left: 0, width: spotlight.left, height: spotlight.height }}
+          />
+          <div
+            className={dimClass}
+            onClick={onClose}
+            style={{
+              top: spotlight.top,
+              left: spotlight.left + spotlight.width,
+              width: Math.max(0, vw - (spotlight.left + spotlight.width)),
+              height: spotlight.height,
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="absolute pointer-events-none border-2 border-vermillion transition-all duration-200"
+            style={{
+              top: spotlight.top,
+              left: spotlight.left,
+              width: spotlight.width,
+              height: spotlight.height,
+            }}
+          />
+        </>
+      ) : (
+        <div className="absolute inset-0 bg-ink/75 dark:bg-black/80 backdrop-blur-sm" onClick={onClose} />
       )}
 
       <div
