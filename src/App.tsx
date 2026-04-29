@@ -10,7 +10,7 @@ import { useWorkspace } from './lib/useWorkspace'
 import { fetchAllArticles } from './lib/rss-fetch'
 import { generateNewsletter, GenerateError } from './lib/generate'
 import { clearAllStorage } from './lib/storage'
-import { copyHtmlToClipboard, copyMarkdownToClipboard } from './lib/serialize'
+import { copyHtmlToClipboard, copyMarkdownToClipboard, copyTeamsHtmlToClipboard } from './lib/serialize'
 import {
   buildEmptyNewsletter,
   buildInitialFilters,
@@ -18,7 +18,7 @@ import {
   DEFAULT_FEEDS,
   INITIAL_UI,
 } from './lib/initial-state'
-import type { AiProvider, FeedAccentColor } from './sections/workspace/types'
+import type { AiProvider, DetailLevel, FeedAccentColor } from './sections/workspace/types'
 
 const THEME_KEY = 'gazette:theme'
 
@@ -120,6 +120,7 @@ export default function App() {
       const { newsletter } = await generateNewsletter({
         selectedArticles: selected,
         provider: state.setup.provider,
+        detailLevel: state.setup.detailLevel,
         signal: controller.signal,
       })
       dispatch({ type: 'newsletter/set', newsletter })
@@ -139,7 +140,7 @@ export default function App() {
     } finally {
       dispatch({ type: 'ui/set-generating', value: false })
     }
-  }, [announce, dispatch, state.articles, state.setup.provider])
+  }, [announce, dispatch, state.articles, state.setup.provider, state.setup.detailLevel])
 
   const handleResetData = useCallback(() => {
     clearAllStorage()
@@ -182,7 +183,7 @@ export default function App() {
   const copyResetTimeoutRef = useRef<number | null>(null)
 
   const triggerCopyFeedback = useCallback(
-    (format: 'markdown' | 'html') => {
+    (format: 'markdown' | 'html' | 'teams') => {
       dispatch({ type: 'ui/set-last-copy-format', format })
       if (copyResetTimeoutRef.current) {
         window.clearTimeout(copyResetTimeoutRef.current)
@@ -216,6 +217,19 @@ export default function App() {
       announce('Newsletter copiée au format HTML.')
     } catch (error) {
       console.error('Copy HTML failed:', error)
+      announce(`Erreur lors de la copie : ${(error as Error).message}`, { politeness: 'assertive' })
+      window.alert(`Erreur lors de la copie : ${(error as Error).message}`)
+    }
+  }, [announce, state.newsletter, triggerCopyFeedback])
+
+  const handleCopyTeams = useCallback(async () => {
+    if (state.newsletter.sections.length === 0) return
+    try {
+      await copyTeamsHtmlToClipboard(state.newsletter)
+      triggerCopyFeedback('teams')
+      announce('Newsletter copiée au format Teams. Colle-la dans un message Teams pour conserver la mise en forme.')
+    } catch (error) {
+      console.error('Copy Teams failed:', error)
       announce(`Erreur lors de la copie : ${(error as Error).message}`, { politeness: 'assertive' })
       window.alert(`Erreur lors de la copie : ${(error as Error).message}`)
     }
@@ -261,6 +275,10 @@ export default function App() {
 
   function handleProviderChange(provider: AiProvider) {
     dispatch({ type: 'setup/set-provider', provider })
+  }
+
+  function handleDetailLevelChange(detailLevel: DetailLevel) {
+    dispatch({ type: 'setup/set-detail-level', detailLevel })
   }
 
   function handleReplayTour() {
@@ -346,6 +364,7 @@ export default function App() {
           onRemoveItemImage={(itemId) => dispatch({ type: 'item/remove-image', itemId })}
           onCopyMarkdown={handleCopyMarkdown}
           onCopyHtml={handleCopyHtml}
+          onCopyTeams={handleCopyTeams}
         />
       </AppShell>
 
@@ -374,10 +393,12 @@ export default function App() {
         onOpenChange={setSettingsOpen}
         feeds={state.feeds}
         provider={state.setup.provider}
+        detailLevel={state.setup.detailLevel}
         healthStatus={healthStatus}
         healthModel={healthModel}
         onCheckHealth={checkHealth}
         onProviderChange={handleProviderChange}
+        onDetailLevelChange={handleDetailLevelChange}
         onAddFeed={handleAddFeed}
         onRemoveFeed={(feedId) => dispatch({ type: 'feed/remove', feedId })}
         onUpdateFeed={(feedId, patch) => dispatch({ type: 'feed/update', feedId, patch })}

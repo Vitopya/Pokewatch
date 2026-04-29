@@ -1,4 +1,4 @@
-import { Check, Code2, Copy, FileDown, RefreshCw } from 'lucide-react'
+import { Check, Code2, Copy, FileDown, MessagesSquare, RefreshCw } from 'lucide-react'
 import {
   DndContext,
   PointerSensor,
@@ -30,6 +30,7 @@ export interface NewsletterPanelProps {
   ui: WorkspaceUiState
   onCopyMarkdown?: () => void
   onCopyHtml?: () => void
+  onCopyTeams?: () => void
   onRegenerate?: () => void
   onReorderSections?: (orderedSectionIds: string[]) => void
   onEditSectionTitle?: (sectionId: string, title: string) => void
@@ -64,18 +65,26 @@ const STATUS_LABEL: Record<Newsletter['status'], string> = {
   error: 'Avarie',
 }
 
+const FORMAT_BADGE: Record<NewsletterFormat, string> = {
+  markdown: 'MD',
+  html: 'HTML',
+  teams: 'Teams',
+}
+
 function CopyButton({
   format,
   label,
   icon: Icon,
   isLastCopied,
   onClick,
+  title,
 }: {
   format: NewsletterFormat
   label: string
   icon: typeof Copy
   isLastCopied: boolean
   onClick?: () => void
+  title?: string
 }) {
   return (
     <button
@@ -88,9 +97,10 @@ function CopyButton({
           : 'bg-paper text-ink border-ink hover:bg-ink hover:text-paper dark:bg-night-paper dark:text-night-text dark:border-night-text dark:hover:bg-night-text dark:hover:text-night',
       ].join(' ')}
       aria-label={`Copier en ${label}`}
+      title={title}
     >
       {isLastCopied ? <Check className="h-3 w-3" aria-hidden="true" strokeWidth={3} /> : <Icon className="h-3 w-3" aria-hidden="true" strokeWidth={2.25} />}
-      <span className="hidden sm:inline">{format === 'markdown' ? 'MD' : 'HTML'}</span>
+      <span className="hidden sm:inline">{FORMAT_BADGE[format]}</span>
     </button>
   )
 }
@@ -135,6 +145,7 @@ export function NewsletterPanel({
   ui,
   onCopyMarkdown,
   onCopyHtml,
+  onCopyTeams,
   onRegenerate,
   onReorderSections,
   onEditSectionTitle,
@@ -191,6 +202,7 @@ export function NewsletterPanel({
             icon={FileDown}
             isLastCopied={ui.lastCopyFormat === 'markdown'}
             onClick={onCopyMarkdown}
+            title="Copier en Markdown"
           />
           <CopyButton
             format="html"
@@ -198,6 +210,15 @@ export function NewsletterPanel({
             icon={Code2}
             isLastCopied={ui.lastCopyFormat === 'html'}
             onClick={onCopyHtml}
+            title="Copier en HTML"
+          />
+          <CopyButton
+            format="teams"
+            label="Microsoft Teams"
+            icon={MessagesSquare}
+            isLastCopied={ui.lastCopyFormat === 'teams'}
+            onClick={onCopyTeams}
+            title="Copier pour Microsoft Teams (mise en forme préservée)"
           />
           <button
             type="button"

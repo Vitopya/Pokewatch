@@ -2,6 +2,7 @@ import type {
   ActivePanel,
   AiProvider,
   Article,
+  DetailLevel,
   Newsletter,
   NewsletterFormat,
   NewsletterStatus,
@@ -52,6 +53,7 @@ export type WorkspaceAction =
   | { type: 'ui/set-last-copy-format'; format: NewsletterFormat | null }
   | { type: 'setup/patch'; patch: Partial<SetupState> }
   | { type: 'setup/set-provider'; provider: AiProvider }
+  | { type: 'setup/set-detail-level'; detailLevel: DetailLevel }
   | { type: 'state/reset'; next: WorkspaceState }
 
 function mapItems(
@@ -313,6 +315,9 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
 
     case 'setup/set-provider':
       return { ...state, setup: { ...state.setup, provider: action.provider } }
+
+    case 'setup/set-detail-level':
+      return { ...state, setup: { ...state.setup, detailLevel: action.detailLevel } }
 
     case 'state/reset':
       return action.next

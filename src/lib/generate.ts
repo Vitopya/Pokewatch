@@ -1,5 +1,5 @@
 import { streamSse } from './sse'
-import type { AiProvider, Article, Newsletter } from '../sections/workspace/types'
+import type { AiProvider, Article, DetailLevel, Newsletter } from '../sections/workspace/types'
 
 export type GenerateErrorCode =
   | 'overloaded'
@@ -40,6 +40,7 @@ export class GenerateError extends Error {
 export interface GenerateOptions {
   selectedArticles: Article[]
   provider?: AiProvider
+  detailLevel?: DetailLevel
   signal?: AbortSignal
   onProgress?: (event: GenerateProgressEvent) => void
 }
@@ -74,7 +75,7 @@ export function friendlyMessage(code: GenerateErrorCode, provider?: AiProvider):
 }
 
 export async function generateNewsletter(options: GenerateOptions): Promise<GenerateResult> {
-  const { selectedArticles, provider, signal, onProgress } = options
+  const { selectedArticles, provider, detailLevel, signal, onProgress } = options
 
   interface ErrorPayload {
     code?: GenerateErrorCode
@@ -97,7 +98,7 @@ export async function generateNewsletter(options: GenerateOptions): Promise<Gene
     {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ articles: selectedArticles, provider }),
+      body: JSON.stringify({ articles: selectedArticles, provider, detailLevel }),
     },
     (event, data) => {
       onProgress?.({ type: event as GenerateProgressEvent['type'], data })

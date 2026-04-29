@@ -36,6 +36,7 @@ export function Workspace({
   onRemoveItemImage,
   onCopyMarkdown,
   onCopyHtml,
+  onCopyTeams,
 }: WorkspaceProps) {
   const showRss = ui.activePanel === 'rss'
   const showNewsletter = ui.activePanel === 'newsletter'
@@ -74,6 +75,7 @@ export function Workspace({
             ui={ui}
             onCopyMarkdown={onCopyMarkdown}
             onCopyHtml={onCopyHtml}
+            onCopyTeams={onCopyTeams}
             onRegenerate={onRegenerateNewsletter}
             onReorderSections={onReorderSections}
             onEditSectionTitle={onEditSectionTitle}

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { FocusTrap } from 'focus-trap-react'
-import { ArrowRight, Compass, KeyRound, Plus, RotateCcw, Sparkles, Trash2, Wifi, WifiOff, X } from 'lucide-react'
-import type { AiProvider, FeedAccentColor, RssFeed } from '../sections/workspace/types'
+import { ArrowRight, Compass, Gauge, KeyRound, Plus, RotateCcw, Sparkles, Trash2, Wifi, WifiOff, X } from 'lucide-react'
+import type { AiProvider, DetailLevel, FeedAccentColor, RssFeed } from '../sections/workspace/types'
 
 const PROVIDER_META: Record<AiProvider, { envVar: string; link: string; hint: string }> = {
   gemini: {
@@ -49,6 +49,24 @@ const PROVIDER_LABELS: Record<AiProvider, string> = {
   custom: 'Custom',
 }
 
+const DETAIL_LEVELS: Array<{ value: DetailLevel; label: string; hint: string }> = [
+  {
+    value: 'standard',
+    label: 'Standard',
+    hint: 'Description en 1 phrase, 4 à 6 puces. Lecture rapide, format compact.',
+  },
+  {
+    value: 'detailed',
+    label: 'Détaillé',
+    hint: 'Description en 2 phrases (contexte + enjeu), 6 à 9 puces denses et complémentaires.',
+  },
+  {
+    value: 'exhaustif',
+    label: 'Exhaustif',
+    hint: 'Description en 3 phrases, 8 à 12 puces (acteurs, chiffres, mécanique, conséquences).',
+  },
+]
+
 export type HealthStatus = 'unknown' | 'checking' | 'ok' | 'missing-key' | 'error'
 
 export interface SettingsDrawerProps {
@@ -56,10 +74,12 @@ export interface SettingsDrawerProps {
   onOpenChange: (open: boolean) => void
   feeds: RssFeed[]
   provider: AiProvider
+  detailLevel: DetailLevel
   healthStatus: HealthStatus
   healthModel?: string
   onCheckHealth?: () => void
   onProviderChange?: (provider: AiProvider) => void
+  onDetailLevelChange?: (detailLevel: DetailLevel) => void
   onAddFeed: (input: { title: string; url: string; accentColor: FeedAccentColor }) => void
   onRemoveFeed: (feedId: string) => void
   onUpdateFeed: (feedId: string, patch: Partial<RssFeed>) => void
@@ -79,10 +99,12 @@ export function SettingsDrawer({
   onOpenChange,
   feeds,
   provider,
+  detailLevel,
   healthStatus,
   healthModel,
   onCheckHealth,
   onProviderChange,
+  onDetailLevelChange,
   onAddFeed,
   onRemoveFeed,
   onUpdateFeed,
@@ -313,6 +335,41 @@ export function SettingsDrawer({
                 </a>
               )}
             </div>
+          </section>
+
+          <section>
+            <h3 className={kicker}>Niveau de détail par sujet</h3>
+            <p className="mt-1 text-xs text-ink-3 dark:text-night-text-3">
+              Profondeur du récap rédigé pour chaque article : description plus longue, plus de puces, plus de contexte.
+            </p>
+            <div className="mt-2 grid grid-cols-3 gap-1.5">
+              {DETAIL_LEVELS.map((opt) => {
+                const selected = detailLevel === opt.value
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => onDetailLevelChange?.(opt.value)}
+                    className={[
+                      'inline-flex items-center justify-center gap-1.5 border-2 px-2 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-colors cursor-pointer',
+                      selected
+                        ? 'bg-vermillion text-paper border-ink dark:border-night-text'
+                        : 'bg-paper dark:bg-night text-ink dark:text-night-text border-ink dark:border-night-text hover:bg-bone-2 dark:hover:bg-night-2',
+                    ].join(' ')}
+                    aria-pressed={selected}
+                  >
+                    <Gauge className="h-3 w-3" aria-hidden="true" strokeWidth={2.5} />
+                    {opt.label}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="mt-2 text-[11px] text-ink-3 dark:text-night-text-3 italic leading-snug">
+              {DETAIL_LEVELS.find((opt) => opt.value === detailLevel)?.hint}
+            </p>
+            <p className="mt-1 text-[11px] text-ink-4 dark:text-night-text-3">
+              Appliqué à la prochaine génération ou recomposition.
+            </p>
           </section>
 
           <section>

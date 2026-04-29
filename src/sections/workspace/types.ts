@@ -38,7 +38,8 @@ export interface SearchFilters {
 }
 
 export type NewsletterStatus = 'draft' | 'generating' | 'ready' | 'error'
-export type NewsletterFormat = 'markdown' | 'html'
+export type NewsletterFormat = 'markdown' | 'html' | 'teams'
+export type DetailLevel = 'standard' | 'detailed' | 'exhaustif'
 export type EventTag =
   | 'event'
   | 'raid'
@@ -86,6 +87,8 @@ export interface SetupState {
   wizardSeen: boolean
   /** Currently selected AI provider for newsletter generation. */
   provider: AiProvider
+  /** Depth of per-item summary the AI should produce. */
+  detailLevel: DetailLevel
 }
 
 export type ActivePanel = 'rss' | 'newsletter'
@@ -169,4 +172,6 @@ export interface WorkspaceProps {
   onCopyMarkdown?: () => void
   /** Copy the newsletter to clipboard in HTML rich format. */
   onCopyHtml?: () => void
+  /** Copy the newsletter as Teams-optimized inline-styled HTML. */
+  onCopyTeams?: () => void
 }

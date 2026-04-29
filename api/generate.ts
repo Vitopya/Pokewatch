@@ -4,6 +4,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import OpenAI from 'openai'
 
 type AiProvider = 'gemini' | 'anthropic' | 'openai' | 'custom'
+type DetailLevel = 'standard' | 'detailed' | 'exhaustif'
 
 interface IncomingArticle {
   id: string
@@ -19,9 +20,27 @@ interface RequestBody {
   articles: IncomingArticle[]
   newsletterTitle?: string
   provider?: AiProvider
+  detailLevel?: DetailLevel
 }
 
-const SYSTEM_PROMPT = `Tu es la voix éditoriale d'une newsletter générée par Gazette — un magazine compact, dense, qui s'adresse à ses lecteurs sans détour. Tu transformes des articles RSS bruts en édition structurée, lisible, avec un peu de personnalité.
+const DETAIL_INSTRUCTIONS: Record<DetailLevel, { description: string; bullets: string }> = {
+  standard: {
+    description: 'UNE phrase qui pose le contexte ET pourquoi le lecteur devrait s\'y intéresser. Pas un résumé plat.',
+    bullets: '4 à 6 puces, chacune dense en infos concrètes',
+  },
+  detailed: {
+    description: 'DEUX phrases : la première pose le contexte (qui, quoi, où, quand), la seconde explicite l\'enjeu, le mécanisme ou l\'impact pour le lecteur. Évite la redite avec les puces.',
+    bullets: '6 à 9 puces denses et complémentaires, chacune apportant une information neuve (pas de paraphrase entre elles)',
+  },
+  exhaustif: {
+    description: 'TROIS phrases : (1) le contexte précis, (2) le détail du mécanisme ou des conditions, (3) l\'impact / l\'angle actionnable. Doit pouvoir tenir en autonomie sans lire la source.',
+    bullets: '8 à 12 puces très détaillées qui couvrent contexte, acteurs, chiffres, dates, mécanique, conditions, conséquences, ce qu\'il faut surveiller. Chaque puce reste lisible (≤ 30 mots) mais doit être informationnellement riche',
+  },
+}
+
+function buildSystemPrompt(detailLevel: DetailLevel): string {
+  const { description, bullets } = DETAIL_INSTRUCTIONS[detailLevel]
+  return `Tu es la voix éditoriale d'une newsletter générée par Gazette — un magazine compact, dense, qui s'adresse à ses lecteurs sans détour. Tu transformes des articles RSS bruts en édition structurée, lisible, avec un peu de personnalité.
 
 # Ton de voix
 
@@ -38,8 +57,8 @@ const SYSTEM_PROMPT = `Tu es la voix éditoriale d'une newsletter générée par
 Pour chaque article reçu :
 
 1. **title** — un titre cinglant (5–10 mots), centré sur l'enjeu, jamais le titre brut de la source.
-2. **description** — UNE phrase qui pose le contexte ET pourquoi le lecteur devrait s'y intéresser. Pas un résumé plat.
-3. **bullets** — 4 à 6 puces, chacune dense en infos concrètes :
+2. **description** — ${description}
+3. **bullets** — ${bullets} :
    - Dates précises (jour, plage horaire, durée)
    - Acteurs / produits / entités impliqués
    - Chiffres clés (montants, pourcentages, tailles, durées)
@@ -99,6 +118,7 @@ Réponds UNIQUEMENT avec un objet JSON valide respectant ce schéma :
 }
 
 Aucun texte hors du JSON. Aucun bloc \`\`\`json. JSON pur uniquement.`
+}
 
 function formatArticlesForUser(articles: IncomingArticle[]): string {
   const today = new Date().toLocaleDateString('fr-FR', {
@@ -212,7 +232,7 @@ interface ProviderConfig {
   id: AiProvider
   envVar: string
   models: string[]
-  run: (model: string, userPrompt: string, onChunk: (chars: number) => void) => Promise<ProviderResult>
+  run: (model: string, userPrompt: string, systemPrompt: string, onChunk: (chars: number) => void) => Promise<ProviderResult>
 }
 
 function isRetryableError(err: unknown): boolean {
@@ -254,10 +274,10 @@ function buildGeminiProvider(): ProviderConfig {
     id: 'gemini',
     envVar,
     models,
-    run: async (model, userPrompt, onChunk) => {
+    run: async (model, userPrompt, systemPrompt, onChunk) => {
       const m = client.getGenerativeModel({
         model,
-        systemInstruction: SYSTEM_PROMPT,
+        systemInstruction: systemPrompt,
         generationConfig: {
           temperature: 0.7,
           maxOutputTokens: 16000,
@@ -305,7 +325,7 @@ function buildAnthropicProvider(): ProviderConfig {
     id: 'anthropic',
     envVar,
     models: dedup,
-    run: async (model, userPrompt, onChunk) => {
+    run: async (model, userPrompt, systemPrompt, onChunk) => {
       let fullText = ''
       let promptTokens = 0
       let outputTokens = 0
@@ -313,7 +333,7 @@ function buildAnthropicProvider(): ProviderConfig {
         model,
         max_tokens: 16000,
         temperature: 0.7,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
       })
       for await (const event of stream) {
@@ -359,7 +379,7 @@ function buildOpenAiProvider(custom = false): ProviderConfig {
     id: custom ? 'custom' : 'openai',
     envVar,
     models: dedup,
-    run: async (model, userPrompt, onChunk) => {
+    run: async (model, userPrompt, systemPrompt, onChunk) => {
       let fullText = ''
       let promptTokens = 0
       let outputTokens = 0
@@ -371,7 +391,7 @@ function buildOpenAiProvider(custom = false): ProviderConfig {
         stream_options: { include_usage: true },
         response_format: { type: 'json_object' },
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
       })
@@ -428,6 +448,7 @@ const RETRY_DELAYS_MS = [1000, 3000, 8000]
 async function runWithRetry(
   config: ProviderConfig,
   userPrompt: string,
+  systemPrompt: string,
   onProgress: (chars: number, model: string) => void,
   onAttempt: (info: { model: string; attempt: number; error?: string }) => void,
 ): Promise<ProviderResult> {
@@ -436,7 +457,7 @@ async function runWithRetry(
     for (let attempt = 0; attempt < RETRY_DELAYS_MS.length + 1; attempt++) {
       try {
         onAttempt({ model, attempt })
-        return await config.run(model, userPrompt, (chars) => onProgress(chars, model))
+        return await config.run(model, userPrompt, systemPrompt, (chars) => onProgress(chars, model))
       } catch (err) {
         lastError = err
         const retryable = isRetryableError(err)
@@ -504,12 +525,18 @@ export default async function handler(
   })
 
   const userPrompt = formatArticlesForUser(body.articles)
+  const detailLevel: DetailLevel =
+    body.detailLevel && DETAIL_INSTRUCTIONS[body.detailLevel]
+      ? body.detailLevel
+      : 'detailed'
+  const systemPrompt = buildSystemPrompt(detailLevel)
   let lastReportedChars = 0
 
   try {
     const result = await runWithRetry(
       config,
       userPrompt,
+      systemPrompt,
       (chars, model) => {
         if (chars - lastReportedChars >= 32) {
           send('progress', { chars, model })

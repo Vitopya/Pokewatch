@@ -45,6 +45,7 @@ export function buildInitialSetup(): SetupState {
     tourSeen: false,
     wizardSeen: false,
     provider: 'gemini',
+    detailLevel: 'detailed',
   }
 }
 
