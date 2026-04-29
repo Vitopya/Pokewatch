@@ -217,37 +217,27 @@ export function SettingsDrawer({
             <div className="mt-2 grid grid-cols-2 gap-1.5">
               {(Object.keys(PROVIDER_LABELS) as AiProvider[]).map((id) => {
                 const selected = provider === id
-                const available = id === 'gemini'
                 return (
                   <button
                     key={id}
                     type="button"
-                    onClick={() => available && onProviderChange?.(id)}
-                    disabled={!available}
-                    title={available ? undefined : 'Bientôt disponible — backend Gemini uniquement pour l\'instant.'}
+                    onClick={() => onProviderChange?.(id)}
                     className={[
-                      'inline-flex items-center justify-center gap-1.5 border-2 px-2 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-colors relative',
-                      available ? 'cursor-pointer' : 'cursor-not-allowed opacity-50',
+                      'inline-flex items-center justify-center gap-1.5 border-2 px-2 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-colors relative cursor-pointer',
                       selected
                         ? 'bg-vermillion text-paper border-ink dark:border-night-text'
-                        : 'bg-paper dark:bg-night text-ink dark:text-night-text border-ink dark:border-night-text ' + (available ? 'hover:bg-bone-2 dark:hover:bg-night-2' : ''),
+                        : 'bg-paper dark:bg-night text-ink dark:text-night-text border-ink dark:border-night-text hover:bg-bone-2 dark:hover:bg-night-2',
                     ].join(' ')}
                     aria-pressed={selected}
-                    aria-disabled={!available}
                   >
                     <Sparkles className="h-3 w-3" aria-hidden="true" strokeWidth={2.5} />
                     {PROVIDER_LABELS[id]}
-                    {!available && (
-                      <span className="ml-0.5 font-mono text-[8px] tracking-[0.14em] text-ink-4 dark:text-night-text-3">
-                        · Bientôt
-                      </span>
-                    )}
                   </button>
                 )
               })}
             </div>
             <p className="mt-1.5 text-[11px] text-ink-3 dark:text-night-text-3 italic">
-              Pour l'instant, seul Google Gemini est branché. Les autres moteurs arrivent bientôt.
+              Le backend bascule automatiquement sur le provider sélectionné si la clé correspondante est configurée côté serveur.
             </p>
 
             <div className="mt-3 border-2 border-ink dark:border-night-text bg-paper dark:bg-night p-3 flex items-center gap-3">

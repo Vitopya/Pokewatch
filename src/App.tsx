@@ -8,7 +8,7 @@ import { SettingsDrawer, type HealthStatus } from './components/SettingsDrawer'
 import { useAnnouncer } from './components/LiveAnnouncer'
 import { useWorkspace } from './lib/useWorkspace'
 import { fetchAllArticles } from './lib/rss-fetch'
-import { generateNewsletter } from './lib/generate'
+import { generateNewsletter, GenerateError } from './lib/generate'
 import { clearAllStorage } from './lib/storage'
 import { copyHtmlToClipboard, copyMarkdownToClipboard } from './lib/serialize'
 import {
@@ -64,7 +64,7 @@ export default function App() {
   const checkHealth = useCallback(async () => {
     setHealthStatus('checking')
     try {
-      const response = await fetch('/api/health')
+      const response = await fetch(`/api/health?provider=${encodeURIComponent(state.setup.provider)}`)
       const data = (await response.json()) as { status: string; model?: string }
       setHealthModel(data.model)
       if (response.ok && data.status === 'ok') {
@@ -75,12 +75,11 @@ export default function App() {
     } catch {
       setHealthStatus('error')
     }
-  }, [])
+  }, [state.setup.provider])
 
   useEffect(() => {
     void checkHealth()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [checkHealth])
 
   const handleFetchArticles = useCallback(async () => {
     dispatch({ type: 'ui/set-fetching', value: true })
@@ -120,6 +119,7 @@ export default function App() {
     try {
       const { newsletter } = await generateNewsletter({
         selectedArticles: selected,
+        provider: state.setup.provider,
         signal: controller.signal,
       })
       dispatch({ type: 'newsletter/set', newsletter })
@@ -128,14 +128,18 @@ export default function App() {
       if ((error as Error).name === 'AbortError') return
       console.error('Newsletter generation failed:', error)
       dispatch({ type: 'newsletter/status', status: 'error' })
-      announce(`Erreur lors de la génération : ${(error as Error).message}`, {
-        politeness: 'assertive',
-      })
-      window.alert(`Erreur lors de la génération : ${(error as Error).message}`)
+      const message = (error as Error).message
+      if (error instanceof GenerateError) {
+        announce(message, { politeness: 'assertive' })
+        window.alert(message)
+      } else {
+        announce(`Erreur lors de la génération : ${message}`, { politeness: 'assertive' })
+        window.alert(`Erreur lors de la génération : ${message}`)
+      }
     } finally {
       dispatch({ type: 'ui/set-generating', value: false })
     }
-  }, [announce, dispatch, state.articles])
+  }, [announce, dispatch, state.articles, state.setup.provider])
 
   const handleResetData = useCallback(() => {
     clearAllStorage()
